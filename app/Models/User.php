@@ -22,6 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'phone',
+        'address',
     ];
 
     /**
@@ -38,6 +40,14 @@ class User extends Authenticatable
     public function isEmployee()
     {
         return $this->role === 'employee';
+    }
+
+    /**
+     * Get transactions created by this user
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'created_by');
     }
 
     /**

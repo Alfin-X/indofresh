@@ -16,9 +16,27 @@
                         <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                             {{ __('Dashboard') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
+                            {{ __('Employees') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('catalogs.index')" :active="request()->routeIs('catalogs.*')">
+                            {{ __('Catalog') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')">
+                            {{ __('Transactions') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.ai.dashboard')" :active="request()->routeIs('admin.ai.*')">
+                            {{ __('AI Analytics') }}
+                        </x-nav-link>
                     @elseif(Auth::user()->role === 'employee')
                         <x-nav-link :href="route('employee.dashboard')" :active="request()->routeIs('employee.dashboard')">
                             {{ __('Dashboard') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('catalogs.index')" :active="request()->routeIs('catalogs.*')">
+                            {{ __('Catalog') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')">
+                            {{ __('Transactions') }}
                         </x-nav-link>
                     @endif
 
@@ -41,18 +59,27 @@
                     </x-slot>
 
                     <x-slot name="content">
-                    <x-dropdown-link :href="route('profile.edit')">
-                        {{ __('Profile') }}
-                    </x-dropdown-link>
-
                     @if(Auth::user()->role === 'admin')
-                        <x-dropdown-link :href="route('employees.create')" role="menuitem">
-                            {{ __('Buat Akun Pegawai') }}
+                        <x-dropdown-link :href="route('admin.profile')">
+                            {{ __('My Profile') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('admin.profile.edit')">
+                            {{ __('Edit Profile') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('admin.profile.change-password')">
+                            {{ __('Change Password') }}
+                        </x-dropdown-link>
+                    @elseif(Auth::user()->role === 'employee')
+                        <x-dropdown-link :href="route('employee.profile')">
+                            {{ __('My Profile') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('employee.profile.edit')">
+                            {{ __('Edit Profile') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('employee.profile.change-password')">
+                            {{ __('Change Password') }}
                         </x-dropdown-link>
                     @endif
-                    <x-dropdown-link :href="route('employees.index')" role="menuitem">
-                        {{ __('Lihat Akun Pegawai') }}
-                    </x-dropdown-link>
 
                     <!-- Authentication -->
                     <form method="POST" action="{{ route('logout') }}">
