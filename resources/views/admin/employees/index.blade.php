@@ -8,25 +8,59 @@
             </a>
         </div>
 
-        <table class="min-w-full bg-white border border-gray-200 rounded">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b border-gray-200 text-left">Nama</th>
-                    <th class="py-2 px-4 border-b border-gray-200 text-left">Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($employees as $employee)
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-green-100 text-green-700 rounded">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $employee->name }}</td>
-                        <td class="py-2 px-4 border-b border-gray-200">{{ $employee->email }}</td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="2" class="py-4 px-4 text-center text-gray-500">Tidak ada akun pegawai.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse ($employees as $employee)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ $employee->name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ $employee->email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ $employee->phone ?? '-' }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ $employee->created_at->format('M d, Y') }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('employees.edit', $employee) }}"
+                                       class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                    <form method="POST" action="{{ route('employees.destroy', $employee) }}"
+                                          onsubmit="return confirm('Are you sure you want to delete this employee?')"
+                                          class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">No employees found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </x-app-layout>
