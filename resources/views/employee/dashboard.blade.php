@@ -1,8 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Employee Dashboard') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Dasbor Karyawan
+            </h2>
+            <div class="text-sm text-gray-600">
+                {{ \Carbon\Carbon::now('Asia/Jakarta')->locale('id')->format('l, d F Y H:i') }} WIB
+            </div>
+        </div>
     </x-slot>
 
     <div class="py-12">
@@ -10,8 +15,8 @@
             <!-- Welcome Message -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                 <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Welcome, {{ auth()->user()->name }}!</h3>
-                    <p class="text-gray-600">Here's your employee dashboard. You can view products, create transactions, and manage your profile.</p>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Selamat datang, {{ auth()->user()->name }}!</h3>
+                    <p class="text-gray-600">Ini adalah dasbor karyawan Anda. Anda dapat melihat produk, membuat transaksi, dan mengelola profil Anda.</p>
                 </div>
             </div>
 
@@ -28,7 +33,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-500">Available Products</div>
+                                <div class="text-sm font-medium text-gray-500">Produk Tersedia</div>
                                 <div class="text-2xl font-bold text-gray-900">{{ \App\Models\Catalog::active()->count() }}</div>
                             </div>
                         </div>
@@ -46,7 +51,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-500">My Transactions</div>
+                                <div class="text-sm font-medium text-gray-500">Transaksi Saya</div>
                                 <div class="text-2xl font-bold text-gray-900">{{ \App\Models\Transaction::where('created_by', auth()->id())->count() }}</div>
                             </div>
                         </div>
@@ -64,7 +69,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-500">Today's Transactions</div>
+                                <div class="text-sm font-medium text-gray-500">Transaksi Hari Ini</div>
                                 <div class="text-2xl font-bold text-gray-900">{{ \App\Models\Transaction::where('created_by', auth()->id())->today()->count() }}</div>
                             </div>
                         </div>
@@ -76,25 +81,25 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Product Catalog</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Katalog Produk</h3>
                         <div class="space-y-3">
                             <a href="{{ route('catalogs.index') }}" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center">
-                                View Products
+                                Lihat Produk
                             </a>
-                            <p class="text-sm text-gray-600">Browse available products and check stock levels</p>
+                            <p class="text-sm text-gray-600">Jelajahi produk yang tersedia dan periksa tingkat stok</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Transactions</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Transaksi</h3>
                         <div class="space-y-3">
                             <a href="{{ route('transactions.create') }}" class="block w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center">
-                                New Transaction
+                                Transaksi Baru
                             </a>
                             <a href="{{ route('transactions.index') }}" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center">
-                                View My Transactions
+                                Lihat Transaksi Saya
                             </a>
                         </div>
                     </div>
@@ -106,15 +111,15 @@
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900">Profile Management</h3>
-                            <p class="text-gray-600">View and update your personal information</p>
+                            <h3 class="text-lg font-medium text-gray-900">Manajemen Profil</h3>
+                            <p class="text-gray-600">Lihat dan perbarui informasi pribadi Anda</p>
                         </div>
                         <div class="space-x-3">
                             <a href="{{ route('employee.profile') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                                View Profile
+                                Lihat Profil
                             </a>
                             <a href="{{ route('employee.profile.edit') }}" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                                Edit Profile
+                                Edit Profil
                             </a>
                         </div>
                     </div>

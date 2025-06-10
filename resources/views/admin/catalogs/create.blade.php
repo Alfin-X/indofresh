@@ -9,7 +9,7 @@
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('catalogs.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('admin.catalogs.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="mb-4">
@@ -51,18 +51,12 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="category" class="block font-medium text-sm text-gray-700">Category</label>
+                            <label for="category" class="block font-medium text-sm text-gray-700">Kategori</label>
                             <select id="category" name="category"
                                 class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                                <option value="">Select Category</option>
-                                <option value="Fruits" {{ old('category') == 'Fruits' ? 'selected' : '' }}>Fruits</option>
-                                <option value="Vegetables" {{ old('category') == 'Vegetables' ? 'selected' : '' }}>Vegetables</option>
-                                <option value="Herbs" {{ old('category') == 'Herbs' ? 'selected' : '' }}>Herbs</option>
-                                <option value="Dairy" {{ old('category') == 'Dairy' ? 'selected' : '' }}>Dairy</option>
-                                <option value="Meat" {{ old('category') == 'Meat' ? 'selected' : '' }}>Meat</option>
-                                <option value="Seafood" {{ old('category') == 'Seafood' ? 'selected' : '' }}>Seafood</option>
-                                <option value="Beverages" {{ old('category') == 'Beverages' ? 'selected' : '' }}>Beverages</option>
-                                <option value="Others" {{ old('category') == 'Others' ? 'selected' : '' }}>Others</option>
+                                <option value="">Pilih Kategori</option>
+                                <option value="Buah Segar" {{ old('category') == 'Buah Segar' ? 'selected' : '' }}>Buah Segar</option>
+                                <option value="Buah Import" {{ old('category') == 'Buah Import' ? 'selected' : '' }}>Buah Import</option>
                             </select>
                             @error('category')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>

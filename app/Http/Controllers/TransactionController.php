@@ -13,7 +13,17 @@ class TransactionController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin,employee');
+        // Allow both admin and employee to access all transaction methods
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+
+            // Allow access for both admin and employee
+            if ($user->isAdmin() || $user->isEmployee()) {
+                return $next($request);
+            }
+
+            abort(403, 'Unauthorized access. Only admin and employee can access transactions.');
+        });
     }
 
     /**
@@ -22,7 +32,7 @@ class TransactionController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         if ($user->isAdmin()) {
             $transactions = Transaction::with('creator', 'items')->latest()->paginate(15);
             return view('admin.transactions.index', compact('transactions'));
@@ -42,7 +52,7 @@ class TransactionController extends Controller
     {
         $catalogs = Catalog::active()->inStock()->get();
         $user = auth()->user();
-        
+
         if ($user->isAdmin()) {
             return view('admin.transactions.create', compact('catalogs'));
         } else {
@@ -68,26 +78,26 @@ class TransactionController extends Controller
         ]);
 
         DB::beginTransaction();
-        
+
         try {
             // Generate transaction code
             $transactionCode = Transaction::generateTransactionCode();
-            
+
             // Calculate total amount
             $totalAmount = 0;
             $transactionItems = [];
-            
+
             foreach ($request->items as $item) {
                 $catalog = Catalog::findOrFail($item['catalog_id']);
-                
+
                 // Check stock availability
                 if ($catalog->stock < $item['quantity']) {
                     throw new \Exception("Insufficient stock for {$catalog->name}");
                 }
-                
+
                 $subtotal = $catalog->price * $item['quantity'];
                 $totalAmount += $subtotal;
-                
+
                 $transactionItems[] = [
                     'catalog_id' => $catalog->id,
                     'product_name' => $catalog->name,
@@ -95,11 +105,11 @@ class TransactionController extends Controller
                     'unit_price' => $catalog->price,
                     'subtotal' => $subtotal,
                 ];
-                
+
                 // Update stock
                 $catalog->decrement('stock', $item['quantity']);
             }
-            
+
             // Create transaction
             $transaction = Transaction::create([
                 'transaction_code' => $transactionCode,
@@ -113,17 +123,17 @@ class TransactionController extends Controller
                 'notes' => $request->notes,
                 'created_by' => auth()->id(),
             ]);
-            
+
             // Create transaction items
             foreach ($transactionItems as $item) {
                 $transaction->items()->create($item);
             }
-            
+
             DB::commit();
-            
+
             return redirect()->route('transactions.show', $transaction)
                 ->with('success', 'Transaction created successfully.');
-                
+
         } catch (\Exception $e) {
             DB::rollback();
             return back()->withErrors(['error' => $e->getMessage()])->withInput();
@@ -137,12 +147,12 @@ class TransactionController extends Controller
     {
         $transaction->load('creator', 'items.catalog');
         $user = auth()->user();
-        
+
         // Check if employee can only view their own transactions
         if ($user->isEmployee() && $transaction->created_by !== $user->id) {
             abort(403, 'Unauthorized access to this transaction.');
         }
-        
+
         if ($user->isAdmin()) {
             return view('admin.transactions.show', compact('transaction'));
         } else {

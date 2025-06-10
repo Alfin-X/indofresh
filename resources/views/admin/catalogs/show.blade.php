@@ -81,14 +81,14 @@
 
                             <!-- Action Buttons -->
                             <div class="mt-8 flex space-x-3">
-                                <a href="{{ route('catalogs.edit', $catalog) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                                <a href="{{ route('admin.catalogs.edit', $catalog) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
                                     Edit Product
                                 </a>
                                 <a href="{{ route('catalogs.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                                     Back to Catalog
                                 </a>
-                                <form method="POST" action="{{ route('catalogs.destroy', $catalog) }}" 
-                                      onsubmit="return confirm('Are you sure you want to delete this product?')" 
+                                <form method="POST" action="{{ route('admin.catalogs.destroy', $catalog) }}"
+                                      onsubmit="return confirm('Are you sure you want to delete this product?')"
                                       class="inline">
                                     @csrf
                                     @method('DELETE')

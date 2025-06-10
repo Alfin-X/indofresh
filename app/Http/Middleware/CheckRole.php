@@ -22,9 +22,17 @@ class CheckRole
             return redirect('/login');
         }
 
-        $roles = explode(',', $role);
-        if (!in_array(Auth::user()->role, $roles)) {
-            abort(403, 'Unauthorized');
+        $user = Auth::user();
+        $allowedRoles = explode(',', $role);
+
+        // Trim whitespace from roles
+        $allowedRoles = array_map('trim', $allowedRoles);
+
+        // Check if user role is in allowed roles
+        $userRole = trim($user->role);
+
+        if (!in_array($userRole, $allowedRoles)) {
+            abort(403, 'Access denied. Required roles: ' . implode(', ', $allowedRoles) . '. Your role: ' . $userRole);
         }
 
         return $next($request);

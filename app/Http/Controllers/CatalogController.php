@@ -11,8 +11,27 @@ class CatalogController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin')->except(['index', 'show']);
-        $this->middleware('role:admin,employee')->only(['index', 'show']);
+        // Allow both admin and employee to view catalogs
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+            $action = $request->route()->getActionMethod();
+
+            // Allow index and show for both admin and employee
+            if (in_array($action, ['index', 'show'])) {
+                if ($user->isAdmin() || $user->isEmployee()) {
+                    return $next($request);
+                }
+            }
+
+            // Only admin can create, edit, update, delete
+            if (in_array($action, ['create', 'store', 'edit', 'update', 'destroy'])) {
+                if ($user->isAdmin()) {
+                    return $next($request);
+                }
+            }
+
+            abort(403, 'Unauthorized access');
+        });
     }
 
     /**
@@ -22,7 +41,7 @@ class CatalogController extends Controller
     {
         $catalogs = Catalog::active()->paginate(12);
         $user = auth()->user();
-        
+
         if ($user->isAdmin()) {
             return view('admin.catalogs.index', compact('catalogs'));
         } else {
@@ -54,7 +73,7 @@ class CatalogController extends Controller
         ]);
 
         $data = $request->all();
-        
+
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('catalogs', 'public');
         }
@@ -70,7 +89,7 @@ class CatalogController extends Controller
     public function show(Catalog $catalog)
     {
         $user = auth()->user();
-        
+
         if ($user->isAdmin()) {
             return view('admin.catalogs.show', compact('catalog'));
         } else {
@@ -102,7 +121,7 @@ class CatalogController extends Controller
         ]);
 
         $data = $request->all();
-        
+
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($catalog->image) {
@@ -125,7 +144,7 @@ class CatalogController extends Controller
         if ($catalog->image) {
             Storage::disk('public')->delete($catalog->image);
         }
-        
+
         $catalog->delete();
 
         return redirect()->route('catalogs.index')->with('success', 'Product deleted successfully.');

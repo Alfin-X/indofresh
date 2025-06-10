@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Indofresh Test Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2563eb; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        a { color: #2563eb; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .test-links { margin: 20px 0; }
+        .test-links a { display: block; margin: 5px 0; padding: 8px 12px; background: #f3f4f6; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍎 Indofresh Server Test</h1>
+
+        <div class="status success">
+            ✅ <strong>Server Status:</strong> ONLINE dan BERFUNGSI!
+        </div>
+
+        <div class="status info">
+            📅 <strong>Waktu:</strong> <span id="time"></span> WIB
+        </div>
+
+        <div class="status info">
+            🌐 <strong>URL:</strong> <span id="url"></span>
+        </div>
+
+        <h2>🔗 Test Links Laravel:</h2>
+        <div class="test-links">
+            <a href="/debug" target="_blank">🐛 Debug Route - Laravel Info</a>
+            <a href="/test" target="_blank">📊 Test JSON Route - API Response</a>
+            <a href="/login" target="_blank">🔐 Login Page - Halaman Masuk</a>
+            <a href="/" target="_blank">🏠 Home - Redirect ke Login</a>
+            <a href="/admin/dashboard" target="_blank">👨‍💼 Admin Dashboard</a>
+            <a href="/employee/dashboard" target="_blank">👩‍💼 Employee Dashboard</a>
+        </div>
+
+        <h2>📋 Troubleshooting:</h2>
+        <ol>
+            <li><strong>Clear Browser Cache:</strong> Ctrl+Shift+Delete</li>
+            <li><strong>Try Incognito Mode:</strong> Ctrl+Shift+N</li>
+            <li><strong>Try Different Browser:</strong> Chrome, Firefox, Edge</li>
+            <li><strong>Check URL:</strong> Pastikan menggunakan http://localhost:8000</li>
+        </ol>
+
+        <div class="status info">
+            💡 <strong>Tip:</strong> Jika link di atas berfungsi, berarti server Laravel berjalan dengan baik!
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString('id-ID');
+        document.getElementById('url').textContent = window.location.origin;
+
+        // Auto refresh time every second
+        setInterval(() => {
+            document.getElementById('time').textContent = new Date().toLocaleString('id-ID');
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,8 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Admin Dashboard') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Dasbor Admin
+            </h2>
+            <div class="text-sm text-gray-600">
+                {{ \Carbon\Carbon::now('Asia/Jakarta')->locale('id')->format('l, d F Y H:i') }} WIB
+            </div>
+        </div>
     </x-slot>
 
     <div class="py-12">
@@ -20,7 +25,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-500">Total Employees</div>
+                                <div class="text-sm font-medium text-gray-500">Total Karyawan</div>
                                 <div class="text-2xl font-bold text-gray-900">{{ $totalEmployees }}</div>
                             </div>
                         </div>
@@ -38,7 +43,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-500">Total Admins</div>
+                                <div class="text-sm font-medium text-gray-500">Total Admin</div>
                                 <div class="text-2xl font-bold text-gray-900">{{ $totalAdmins }}</div>
                             </div>
                         </div>
@@ -56,7 +61,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-500">Products</div>
+                                <div class="text-sm font-medium text-gray-500">Produk</div>
                                 <div class="text-2xl font-bold text-gray-900">{{ \App\Models\Catalog::count() }}</div>
                             </div>
                         </div>
@@ -74,7 +79,7 @@
                                 </div>
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-500">Transactions</div>
+                                <div class="text-sm font-medium text-gray-500">Transaksi</div>
                                 <div class="text-2xl font-bold text-gray-900">{{ \App\Models\Transaction::count() }}</div>
                             </div>
                         </div>
@@ -86,13 +91,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Employee Management</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Manajemen Karyawan</h3>
                         <div class="space-y-3">
                             <a href="{{ route('employees.index') }}" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center">
-                                View Employees
+                                Lihat Karyawan
                             </a>
                             <a href="{{ route('employees.create') }}" class="block w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center">
-                                Add Employee
+                                Tambah Karyawan
                             </a>
                         </div>
                     </div>
@@ -100,13 +105,13 @@
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Catalog Management</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Manajemen Katalog</h3>
                         <div class="space-y-3">
                             <a href="{{ route('catalogs.index') }}" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center">
-                                View Catalog
+                                Lihat Katalog
                             </a>
-                            <a href="{{ route('catalogs.create') }}" class="block w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center">
-                                Add Product
+                            <a href="{{ route('admin.catalogs.create') }}" class="block w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center">
+                                Tambah Produk
                             </a>
                         </div>
                     </div>
@@ -114,13 +119,13 @@
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Transactions</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Transaksi</h3>
                         <div class="space-y-3">
                             <a href="{{ route('transactions.index') }}" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center">
-                                View Transactions
+                                Lihat Transaksi
                             </a>
                             <a href="{{ route('transactions.create') }}" class="block w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center">
-                                New Transaction
+                                Transaksi Baru
                             </a>
                         </div>
                     </div>
@@ -132,11 +137,11 @@
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900">AI Analytics & Insights</h3>
-                            <p class="text-gray-600">View sales analytics, trends, and business insights powered by AI</p>
+                            <h3 class="text-lg font-medium text-gray-900">Analitik AI & Wawasan</h3>
+                            <p class="text-gray-600">Lihat analitik penjualan, tren, dan wawasan bisnis yang didukung AI</p>
                         </div>
                         <a href="{{ route('admin.ai.dashboard') }}" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                            View Analytics
+                            Lihat Analitik
                         </a>
                     </div>
                 </div>

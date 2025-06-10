@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Product Catalog') }}
+            Katalog Produk
         </h2>
     </x-slot>
 
@@ -10,9 +10,9 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-medium">Available Products</h3>
+                        <h3 class="text-lg font-medium">Produk Tersedia</h3>
                         <a href="{{ route('transactions.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Create Transaction
+                            Buat Transaksi
                         </a>
                     </div>
 
@@ -20,20 +20,21 @@
                     <div class="mb-6">
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex-1">
-                                <input type="text" id="search" placeholder="Search products..." 
+                                <input type="text" id="search" placeholder="Cari produk..."
                                     class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
                             </div>
                             <div>
                                 <select id="category-filter" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">All Categories</option>
-                                    <option value="Fruits">Fruits</option>
-                                    <option value="Vegetables">Vegetables</option>
-                                    <option value="Herbs">Herbs</option>
-                                    <option value="Dairy">Dairy</option>
-                                    <option value="Meat">Meat</option>
+                                    <option value="">Semua Kategori</option>
+                                    <option value="Buah Segar">Buah Segar</option>
+                                    <option value="Buah Import">Buah Import</option>
+                                    <option value="Sayuran">Sayuran</option>
+                                    <option value="Rempah">Rempah</option>
+                                    <option value="Susu">Susu</option>
+                                    <option value="Daging">Daging</option>
                                     <option value="Seafood">Seafood</option>
-                                    <option value="Beverages">Beverages</option>
-                                    <option value="Others">Others</option>
+                                    <option value="Minuman">Minuman</option>
+                                    <option value="Lainnya">Lainnya</option>
                                 </select>
                             </div>
                         </div>
@@ -41,8 +42,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid">
                         @forelse($catalogs as $catalog)
-                            <div class="product-card bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden" 
-                                 data-name="{{ strtolower($catalog->name) }}" 
+                            <div class="product-card bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden"
+                                 data-name="{{ strtolower($catalog->name) }}"
                                  data-category="{{ $catalog->category }}">
                                 @if($catalog->image)
                                     <img src="{{ Storage::url($catalog->image) }}" alt="{{ $catalog->name }}" class="w-full h-48 object-cover">
@@ -53,32 +54,32 @@
                                         </svg>
                                     </div>
                                 @endif
-                                
+
                                 <div class="p-4">
                                     <h4 class="font-semibold text-lg mb-2">{{ $catalog->name }}</h4>
                                     <p class="text-gray-600 text-sm mb-2">{{ Str::limit($catalog->description, 100) }}</p>
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-lg font-bold text-green-600">Rp {{ number_format($catalog->price, 0, ',', '.') }}</span>
                                         <span class="text-sm {{ $catalog->stock > 10 ? 'text-green-600' : ($catalog->stock > 0 ? 'text-yellow-600' : 'text-red-600') }}">
-                                            Stock: {{ $catalog->stock }}
+                                            Stok: {{ $catalog->stock }}
                                         </span>
                                     </div>
                                     @if($catalog->category)
                                         <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mb-3">{{ $catalog->category }}</span>
                                     @endif
-                                    
+
                                     <div class="flex space-x-2">
                                         <a href="{{ route('catalogs.show', $catalog) }}" class="flex-1 bg-gray-500 hover:bg-gray-700 text-white text-center py-2 px-3 rounded text-sm">
-                                            View Details
+                                            Lihat Detail
                                         </a>
                                         @if($catalog->stock > 0)
-                                            <button onclick="addToCart({{ $catalog->id }}, '{{ $catalog->name }}', {{ $catalog->price }}, {{ $catalog->stock }})" 
+                                            <button onclick="addToCart({{ $catalog->id }}, '{{ $catalog->name }}', {{ $catalog->price }}, {{ $catalog->stock }})"
                                                     class="flex-1 bg-blue-500 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm">
-                                                Add to Cart
+                                                Tambah ke Keranjang
                                             </button>
                                         @else
                                             <button disabled class="flex-1 bg-gray-300 text-gray-500 py-2 px-3 rounded text-sm cursor-not-allowed">
-                                                Out of Stock
+                                                Stok Habis
                                             </button>
                                         @endif
                                     </div>
@@ -89,8 +90,8 @@
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m14 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m14 0H6m14 0l-3-3m-3 3l-3-3m3 3v4"></path>
                                 </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">No products available</h3>
-                                <p class="mt-1 text-sm text-gray-500">There are currently no products in the catalog.</p>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada produk tersedia</h3>
+                                <p class="mt-1 text-sm text-gray-500">Saat ini tidak ada produk dalam katalog.</p>
                             </div>
                         @endforelse
                     </div>
@@ -107,7 +108,7 @@
             <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-96 bg-white shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium">Shopping Cart</h3>
+                        <h3 class="text-lg font-medium">Keranjang Belanja</h3>
                         <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -123,7 +124,7 @@
                             <span id="cart-total" class="text-lg font-bold text-green-600">Rp 0</span>
                         </div>
                         <button onclick="proceedToCheckout()" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Proceed to Checkout
+                            Lanjut ke Checkout
                         </button>
                     </div>
                 </div>
@@ -155,10 +156,10 @@
             productCards.forEach(card => {
                 const productName = card.dataset.name;
                 const productCategory = card.dataset.category;
-                
+
                 const matchesSearch = productName.includes(searchTerm);
                 const matchesCategory = !selectedCategory || productCategory === selectedCategory;
-                
+
                 if (matchesSearch && matchesCategory) {
                     card.style.display = 'block';
                 } else {
@@ -169,18 +170,18 @@
 
         function addToCart(id, name, price, stock) {
             const existingItem = cart.find(item => item.id === id);
-            
+
             if (existingItem) {
                 if (existingItem.quantity < stock) {
                     existingItem.quantity++;
                 } else {
-                    alert('Cannot add more items. Stock limit reached.');
+                    alert('Tidak dapat menambah item lagi. Batas stok tercapai.');
                     return;
                 }
             } else {
                 cart.push({ id, name, price, quantity: 1, stock });
             }
-            
+
             updateCartDisplay();
             showCart();
         }
@@ -188,14 +189,14 @@
         function updateCartDisplay() {
             const cartItems = document.getElementById('cart-items');
             const cartTotal = document.getElementById('cart-total');
-            
+
             cartItems.innerHTML = '';
             let total = 0;
-            
+
             cart.forEach(item => {
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
-                
+
                 cartItems.innerHTML += `
                     <div class="flex justify-between items-center border-b pb-2">
                         <div>
@@ -211,7 +212,7 @@
                     </div>
                 `;
             });
-            
+
             cartTotal.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
         }
 
@@ -225,7 +226,7 @@
                 } else if (newQuantity <= 0) {
                     removeFromCart(id);
                 } else {
-                    alert('Cannot add more items. Stock limit reached.');
+                    alert('Tidak dapat menambah item lagi. Batas stok tercapai.');
                 }
             }
         }
@@ -238,7 +239,7 @@
         function toggleCart() {
             const sidebar = document.getElementById('cart-sidebar');
             const overlay = document.getElementById('cart-overlay');
-            
+
             if (sidebar.classList.contains('translate-x-full')) {
                 showCart();
             } else {
@@ -249,7 +250,7 @@
         function showCart() {
             const sidebar = document.getElementById('cart-sidebar');
             const overlay = document.getElementById('cart-overlay');
-            
+
             sidebar.classList.remove('translate-x-full');
             overlay.classList.remove('hidden');
         }
@@ -257,17 +258,17 @@
         function hideCart() {
             const sidebar = document.getElementById('cart-sidebar');
             const overlay = document.getElementById('cart-overlay');
-            
+
             sidebar.classList.add('translate-x-full');
             overlay.classList.add('hidden');
         }
 
         function proceedToCheckout() {
             if (cart.length === 0) {
-                alert('Your cart is empty!');
+                alert('Keranjang Anda kosong!');
                 return;
             }
-            
+
             // Store cart in session storage and redirect to transaction create page
             sessionStorage.setItem('cart', JSON.stringify(cart));
             window.location.href = '{{ route("transactions.create") }}';
