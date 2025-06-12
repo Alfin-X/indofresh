@@ -7,8 +7,7 @@ use App\Models\TransactionItem;
 use App\Models\Catalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Artisan;
+
 use Carbon\Carbon;
 
 class AIController extends Controller
@@ -28,14 +27,12 @@ class AIController extends Controller
         $salesData = $this->getSalesAnalytics();
         $productAnalytics = $this->getProductAnalytics();
         $revenueAnalytics = $this->getRevenueAnalytics();
-        $fruitPrediction = $this->getFruitPrediction();
         $stockPrediction = $this->getStockPrediction();
 
         return view('admin.ai.dashboard', compact(
             'salesData',
             'productAnalytics',
             'revenueAnalytics',
-            'fruitPrediction',
             'stockPrediction'
         ));
     }
@@ -294,56 +291,7 @@ class AIController extends Controller
         ];
     }
 
-    /**
-     * Get AI fruit prediction data
-     */
-    private function getFruitPrediction()
-    {
-        // Try to get cached prediction first
-        $cachedPrediction = Cache::get('fruit_prediction_result');
 
-        if ($cachedPrediction) {
-            return $cachedPrediction;
-        }
-
-        // If no cached prediction, try to run the AI prediction
-        try {
-            // Run the AI prediction command
-            Artisan::call('ai:predict-fruit');
-
-            // Get the result from cache after running
-            $prediction = Cache::get('fruit_prediction_result');
-
-            if ($prediction) {
-                return $prediction;
-            }
-        } catch (\Exception $e) {
-            // Log the error but don't break the dashboard
-            \Log::error('Failed to run AI fruit prediction', [
-                'error' => $e->getMessage()
-            ]);
-        }
-
-        // Return default prediction if AI fails
-        return [
-            'status' => 'unavailable',
-            'message' => 'AI prediction is currently unavailable',
-            'prediction' => [
-                'predicted_fruit' => 'Data insufficient',
-                'confidence' => 0.0,
-                'top_predictions' => [],
-                'reasoning' => 'AI prediction system is currently unavailable or insufficient data for prediction.'
-            ],
-            'data_summary' => [
-                'total_transactions' => 0,
-                'unique_fruits' => 0,
-                'date_range' => [
-                    'start' => null,
-                    'end' => null
-                ]
-            ]
-        ];
-    }
 
     /**
      * Get stock prediction and recommendations for ALL fruits
@@ -476,35 +424,5 @@ class AIController extends Controller
         }
     }
 
-    /**
-     * API endpoint to manually trigger fruit prediction
-     */
-    public function triggerFruitPrediction()
-    {
-        try {
-            // Run the AI prediction command with force flag
-            Artisan::call('ai:predict-fruit', ['--force' => true]);
 
-            // Get the fresh result
-            $prediction = Cache::get('fruit_prediction_result');
-
-            if ($prediction) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Prediction updated successfully',
-                    'data' => $prediction
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to generate prediction'
-                ], 500);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error running prediction: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 }

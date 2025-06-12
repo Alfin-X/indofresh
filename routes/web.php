@@ -102,7 +102,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     // AI Analytics
     Route::get('/ai', [AIController::class, 'dashboard'])->name('admin.ai.dashboard');
     Route::get('/ai/chart-data', [AIController::class, 'getChartData'])->name('admin.ai.chart-data');
-    Route::post('/ai/predict-fruit', [AIController::class, 'triggerFruitPrediction'])->name('admin.ai.predict-fruit');
 
 
 

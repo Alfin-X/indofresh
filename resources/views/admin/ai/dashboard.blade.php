@@ -105,122 +105,7 @@
                 </div>
             </div>
 
-            <!-- AI Fruit Prediction Section -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium">🤖 Prediksi Penjualan Buah AI</h3>
-                        <button onclick="updatePrediction()" id="updateBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
-                            🔄 Perbarui Prediksi
-                        </button>
-                    </div>
 
-                    <div id="predictionContent">
-                        @if($fruitPrediction['status'] === 'success')
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <!-- Main Prediction -->
-                                <div class="lg:col-span-2">
-                                    <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border border-green-200">
-                                        <div class="flex items-center mb-4">
-                                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4">
-                                                <span class="text-2xl">🍎</span>
-                                            </div>
-                                            <div>
-                                                <h4 class="text-xl font-bold text-gray-900">Prediksi Penjualan Berikutnya</h4>
-                                                <p class="text-sm text-gray-600">Berdasarkan analisis penjualan 30 hari</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-4">
-                                            <div class="text-3xl font-bold text-green-600 mb-2">
-                                                {{ $fruitPrediction['prediction']['predicted_fruit'] }}
-                                            </div>
-                                            <div class="flex items-center mb-3">
-                                                <span class="text-sm text-gray-600 mr-2">Kepercayaan:</span>
-                                                <div class="flex-1 bg-gray-200 rounded-full h-2 mr-2">
-                                                    <div class="bg-green-500 h-2 rounded-full" style="width: {{ $fruitPrediction['prediction']['confidence'] * 100 }}%"></div>
-                                                </div>
-                                                <span class="text-sm font-medium">{{ number_format($fruitPrediction['prediction']['confidence'] * 100, 1) }}%</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="bg-white rounded p-4 border-l-4 border-blue-500">
-                                            <h5 class="font-medium text-gray-900 mb-2">💡 Alasan AI</h5>
-                                            <p class="text-sm text-gray-700">{{ $fruitPrediction['prediction']['reasoning'] }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Top Predictions -->
-                                <div>
-                                    <h5 class="font-medium text-gray-900 mb-3">📊 3 Prediksi Teratas</h5>
-                                    <div class="space-y-3">
-                                        @foreach($fruitPrediction['prediction']['top_predictions'] as $index => $pred)
-                                            <div class="bg-gray-50 rounded-lg p-3 border">
-                                                <div class="flex justify-between items-center">
-                                                    <div>
-                                                        <span class="font-medium text-gray-900">{{ $index + 1 }}. {{ $pred['fruit'] }}</span>
-                                                        @if(isset($pred['recent_sales']))
-                                                            <div class="text-xs text-gray-500">{{ $pred['recent_sales'] }} penjualan terbaru</div>
-                                                        @endif
-                                                    </div>
-                                                    <div class="text-right">
-                                                        <div class="text-sm font-medium">{{ number_format($pred['confidence'] * 100, 1) }}%</div>
-                                                        @if(isset($pred['sales_trend']) && $pred['sales_trend'] != 0)
-                                                            <div class="text-xs {{ $pred['sales_trend'] > 0 ? 'text-green-600' : 'text-red-600' }}">
-                                                                {{ $pred['sales_trend'] > 0 ? '↗' : '↘' }} {{ number_format(abs($pred['sales_trend'] * 100), 1) }}%
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-
-                                    <!-- Data Summary -->
-                                    @if(isset($fruitPrediction['data_summary']))
-                                        <div class="mt-4 p-3 bg-blue-50 rounded border">
-                                            <h6 class="text-sm font-medium text-blue-900 mb-2">📋 Data Analisis</h6>
-                                            <div class="text-xs text-blue-700 space-y-1">
-                                                <div>Transaksi: {{ $fruitPrediction['data_summary']['total_transactions'] }}</div>
-                                                <div>Buah Unik: {{ $fruitPrediction['data_summary']['unique_fruits'] }}</div>
-                                                @if($fruitPrediction['data_summary']['date_range']['start'])
-                                                    <div>Periode: {{ \Carbon\Carbon::parse($fruitPrediction['data_summary']['date_range']['start'])->locale('id')->format('d M') }} - {{ \Carbon\Carbon::parse($fruitPrediction['data_summary']['date_range']['end'])->locale('id')->format('d M') }}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @elseif($fruitPrediction['status'] === 'error')
-                            <div class="bg-red-50 border border-red-200 rounded-lg p-6">
-                                <div class="flex items-center mb-3">
-                                    <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mr-3">
-                                        <span class="text-white">⚠</span>
-                                    </div>
-                                    <h4 class="text-lg font-medium text-red-900">Error Prediksi</h4>
-                                </div>
-                                <p class="text-red-700 mb-3">{{ $fruitPrediction['message'] }}</p>
-                                <p class="text-sm text-red-600">{{ $fruitPrediction['prediction']['reasoning'] }}</p>
-                            </div>
-                        @else
-                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                                <div class="flex items-center mb-3">
-                                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
-                                        <span class="text-white">ℹ</span>
-                                    </div>
-                                    <h4 class="text-lg font-medium text-yellow-900">Prediksi Tidak Tersedia</h4>
-                                </div>
-                                <p class="text-yellow-700 mb-3">{{ $fruitPrediction['message'] }}</p>
-                                <p class="text-sm text-yellow-600">{{ $fruitPrediction['prediction']['reasoning'] }}</p>
-                                <button onclick="updatePrediction()" class="mt-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded text-sm">
-                                    Coba Buat Prediksi
-                                </button>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
 
             <!-- Stock Prediction Section -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
@@ -515,46 +400,7 @@
                 });
             });
 
-        // AI Fruit Prediction Update Function
-        function updatePrediction() {
-            const updateBtn = document.getElementById('updateBtn');
-            const originalText = updateBtn.innerHTML;
 
-            // Show loading state
-            updateBtn.innerHTML = '⏳ Memperbarui...';
-            updateBtn.disabled = true;
-
-            fetch('{{ route("admin.ai.predict-fruit") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Show success message
-                    showNotification('Prediksi berhasil diperbarui!', 'success');
-
-                    // Reload the page to show new prediction
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    showNotification('Gagal memperbarui prediksi: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error memperbarui prediksi. Silakan coba lagi.', 'error');
-            })
-            .finally(() => {
-                // Restore button state
-                updateBtn.innerHTML = originalText;
-                updateBtn.disabled = false;
-            });
-        }
 
         // Notification function
         function showNotification(message, type) {
@@ -613,10 +459,6 @@
             });
         }
 
-        // Auto-update prediction every 30 minutes
-        setInterval(() => {
-            console.log('Auto-updating fruit prediction...');
-            updatePrediction();
-        }, 30 * 60 * 1000); // 30 minutes
+
     </script>
 </x-app-layout>
