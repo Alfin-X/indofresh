@@ -146,6 +146,7 @@ Route::get('/transactions', [TransactionController::class, 'index'])->name('tran
 Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
 Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
 Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
+Route::patch('/transactions/{transaction}/payment-status', [TransactionController::class, 'updatePaymentStatus'])->name('transactions.update-payment-status');
 
 // Debug routes to test employee access
 Route::get('/test-employee', function () {
