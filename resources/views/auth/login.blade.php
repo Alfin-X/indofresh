@@ -8,7 +8,7 @@
         <!-- Email Address -->
         <div>
             <x-input-label for="email" value="Email" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" title="Data harus diisi" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
@@ -19,7 +19,7 @@
             <x-text-input id="password" class="block mt-1 w-full"
                             type="password"
                             name="password"
-                            required autocomplete="current-password" />
+                            required autocomplete="current-password" title="Data harus diisi" />
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -44,4 +44,42 @@
             </x-primary-button>
         </div>
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set custom validation messages for HTML5 validation
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+
+            if (emailInput) {
+                emailInput.addEventListener('invalid', function() {
+                    if (this.validity.valueMissing) {
+                        this.setCustomValidity('Data harus diisi');
+                    } else if (this.validity.typeMismatch) {
+                        this.setCustomValidity('Format email tidak valid');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+
+                emailInput.addEventListener('input', function() {
+                    this.setCustomValidity('');
+                });
+            }
+
+            if (passwordInput) {
+                passwordInput.addEventListener('invalid', function() {
+                    if (this.validity.valueMissing) {
+                        this.setCustomValidity('Data harus diisi');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+
+                passwordInput.addEventListener('input', function() {
+                    this.setCustomValidity('');
+                });
+            }
+        });
+    </script>
 </x-guest-layout>

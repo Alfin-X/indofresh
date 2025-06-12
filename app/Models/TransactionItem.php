@@ -10,13 +10,20 @@ class TransactionItem extends Model
     use HasFactory;
 
     /**
+     * The data type of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'int';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
         'transaction_id',
-        'catalog_id',
+        'catalog_id_produk',
         'product_name',
         'quantity',
         'unit_price',
@@ -47,6 +54,6 @@ class TransactionItem extends Model
      */
     public function catalog()
     {
-        return $this->belongsTo(Catalog::class);
+        return $this->belongsTo(Catalog::class, 'catalog_id_produk', 'id_produk');
     }
 }

@@ -16,6 +16,55 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Session Management Script -->
+        <script>
+            // Setup CSRF token for all AJAX requests
+            window.Laravel = {
+                csrfToken: '{{ csrf_token() }}'
+            };
+
+            // Setup axios defaults if available
+            if (typeof axios !== 'undefined') {
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = window.Laravel.csrfToken;
+                axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+                // Handle 419 responses globally
+                axios.interceptors.response.use(
+                    response => response,
+                    error => {
+                        if (error.response && error.response.status === 419) {
+                            if (confirm('Your session has expired. Would you like to refresh the page?')) {
+                                window.location.reload();
+                            } else {
+                                window.location.href = '{{ route("login") }}';
+                            }
+                        }
+                        return Promise.reject(error);
+                    }
+                );
+            }
+
+            // Setup jQuery CSRF token if available
+            if (typeof $ !== 'undefined') {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': window.Laravel.csrfToken
+                    }
+                });
+
+                // Handle 419 responses globally for jQuery
+                $(document).ajaxError(function(event, xhr, settings) {
+                    if (xhr.status === 419) {
+                        if (confirm('Your session has expired. Would you like to refresh the page?')) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = '{{ route("login") }}';
+                        }
+                    }
+                });
+            }
+        </script>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">

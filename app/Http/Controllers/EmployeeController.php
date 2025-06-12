@@ -39,23 +39,32 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:500'],
+            'id_pegawai' => ['required', 'string', 'max:6', 'unique:users,id_pegawai'],
+            'nama_pegawai' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'max:20', 'unique:users'],
+            'password' => ['required', 'string', 'max:20'],
+        ], [
+            'id_pegawai.required' => 'Data tidak boleh kosong',
+            'id_pegawai.max' => 'ID Pegawai maksimal 6 karakter',
+            'id_pegawai.unique' => 'ID Pegawai sudah digunakan',
+            'nama_pegawai.required' => 'Data tidak boleh kosong',
+            'nama_pegawai.max' => 'Nama Pegawai maksimal 20 karakter',
+            'email.required' => 'Data tidak boleh kosong',
+            'email.max' => 'Email maksimal 20 karakter',
+            'email.unique' => 'Email sudah digunakan',
+            'password.required' => 'Data tidak boleh kosong',
+            'password.max' => 'Password maksimal 20 karakter',
         ]);
 
         $employee = User::create([
-            'name' => $request->name,
+            'id_pegawai' => $request->id_pegawai,
+            'name' => $request->nama_pegawai,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'phone' => $request->phone,
-            'address' => $request->address,
             'role' => 'employee',
         ]);
 
-        return redirect()->route('employees.create')->with('success', 'Employee account created successfully.');
+        return redirect()->route('employees.index')->with('success', 'Akun pegawai berhasil dibuat.');
     }
 
     /**
@@ -82,18 +91,26 @@ class EmployeeController extends Controller
         }
 
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $employee->id],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'id_pegawai' => ['required', 'string', 'max:6', 'unique:users,id_pegawai,' . $employee->id],
+            'nama_pegawai' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'max:20', 'unique:users,email,' . $employee->id],
+            'password' => ['nullable', 'string', 'max:20'],
+        ], [
+            'id_pegawai.required' => 'Data tidak boleh kosong',
+            'id_pegawai.max' => 'ID Pegawai maksimal 6 karakter',
+            'id_pegawai.unique' => 'ID Pegawai sudah digunakan',
+            'nama_pegawai.required' => 'Data tidak boleh kosong',
+            'nama_pegawai.max' => 'Nama Pegawai maksimal 20 karakter',
+            'email.required' => 'Data tidak boleh kosong',
+            'email.max' => 'Email maksimal 20 karakter',
+            'email.unique' => 'Email sudah digunakan',
+            'password.max' => 'Password maksimal 20 karakter',
         ]);
 
         $data = [
-            'name' => $request->name,
+            'id_pegawai' => $request->id_pegawai,
+            'name' => $request->nama_pegawai,
             'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
         ];
 
         // Only update password if provided
@@ -103,7 +120,7 @@ class EmployeeController extends Controller
 
         $employee->update($data);
 
-        return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        return redirect()->route('employees.index')->with('success', 'Data pegawai berhasil diubah.');
     }
 
     /**
@@ -118,6 +135,6 @@ class EmployeeController extends Controller
 
         $employee->delete();
 
-        return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
+        return redirect()->route('employees.index')->with('success', 'Pegawai berhasil dihapus.');
     }
 }

@@ -70,6 +70,10 @@ Route::get('/health', function () {
         ->header('Content-Type', 'text/plain');
 });
 
+
+
+
+
 // Authentication routes provided by Breeze
 require __DIR__.'/auth.php';
 
@@ -80,20 +84,17 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
 
     // Admin profile management
     Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
-    Route::get('/profile/edit', [AdminController::class, 'editProfile'])->name('admin.profile.edit');
-    Route::patch('/profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
     Route::get('/profile/change-password', [AdminController::class, 'changePasswordForm'])->name('admin.profile.change-password');
     Route::patch('/profile/password', [AdminController::class, 'updatePassword'])->name('admin.profile.update-password');
 
     // Employee management
     Route::resource('employees', EmployeeController::class);
 
-    // Admin-only catalog management (create, edit, update, delete)
+    // Admin-only catalog management (create, edit, update)
     Route::get('/catalogs/create', [CatalogController::class, 'create'])->name('admin.catalogs.create');
     Route::post('/catalogs', [CatalogController::class, 'store'])->name('admin.catalogs.store');
     Route::get('/catalogs/{catalog}/edit', [CatalogController::class, 'edit'])->name('admin.catalogs.edit');
     Route::put('/catalogs/{catalog}', [CatalogController::class, 'update'])->name('admin.catalogs.update');
-    Route::delete('/catalogs/{catalog}', [CatalogController::class, 'destroy'])->name('admin.catalogs.destroy');
 
     // Admin-only transaction management (update payment status)
     Route::patch('/transactions/{transaction}/payment-status', [TransactionController::class, 'updatePaymentStatus'])->name('admin.transactions.update-payment-status');
@@ -102,6 +103,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/ai', [AIController::class, 'dashboard'])->name('admin.ai.dashboard');
     Route::get('/ai/chart-data', [AIController::class, 'getChartData'])->name('admin.ai.chart-data');
     Route::post('/ai/predict-fruit', [AIController::class, 'triggerFruitPrediction'])->name('admin.ai.predict-fruit');
+
+
 
     // Logout
     Route::post('/logout', function () {

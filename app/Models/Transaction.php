@@ -10,6 +10,13 @@ class Transaction extends Model
     use HasFactory;
 
     /**
+     * The data type of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'int';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -17,8 +24,6 @@ class Transaction extends Model
     protected $fillable = [
         'transaction_code',
         'customer_name',
-        'customer_phone',
-        'customer_email',
         'total_amount',
         'payment_method',
         'payment_status',

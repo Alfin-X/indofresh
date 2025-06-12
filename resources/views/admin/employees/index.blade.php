@@ -18,16 +18,19 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Pegawai</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse ($employees as $employee)
                         <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ $employee->id_pegawai ?? '-' }}</div>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $employee->name }}</div>
                             </td>
@@ -35,28 +38,25 @@
                                 <div class="text-sm text-gray-900">{{ $employee->email }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $employee->phone ?? '-' }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $employee->created_at->format('M d, Y') }}</div>
+                                <div class="text-sm text-gray-900">{{ $employee->created_at->format('d M Y') }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
                                     <a href="{{ route('employees.edit', $employee) }}"
-                                       class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                       class="text-indigo-600 hover:text-indigo-900">Ubah</a>
                                     <form method="POST" action="{{ route('employees.destroy', $employee) }}"
-                                          onsubmit="return confirm('Are you sure you want to delete this employee?')"
+                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus pegawai ini?')"
                                           class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">No employees found.</td>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Tidak ada pegawai ditemukan.</td>
                         </tr>
                     @endforelse
                 </tbody>

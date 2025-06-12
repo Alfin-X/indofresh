@@ -20,4 +20,17 @@ class ProfileUpdateRequest extends FormRequest
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
         ];
     }
+
+    /**
+     * Get the validation messages that apply to the request.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Data harus diisi',
+            'email.required' => 'Data harus diisi',
+        ];
+    }
 }

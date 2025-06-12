@@ -67,14 +67,19 @@ class TransactionController extends Controller
     {
         $request->validate([
             'customer_name' => ['required', 'string', 'max:255'],
-            'customer_phone' => ['nullable', 'string', 'max:20'],
-            'customer_email' => ['nullable', 'email', 'max:255'],
             'payment_method' => ['required', 'in:cash,transfer,card,e-wallet'],
             'payment_status' => ['required', 'in:pending,paid,cancelled'],
             'notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.catalog_id' => ['required', 'exists:catalogs,id'],
+            'items.*.catalog_id' => ['required', 'exists:catalogs,id_produk'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
+        ], [
+            'customer_name.required' => 'Data harus diisi',
+            'payment_method.required' => 'Data harus diisi',
+            'payment_status.required' => 'Data harus diisi',
+            'items.required' => 'Data harus diisi',
+            'items.*.catalog_id.required' => 'Data harus diisi',
+            'items.*.quantity.required' => 'Data harus diisi',
         ]);
 
         DB::beginTransaction();
@@ -88,21 +93,21 @@ class TransactionController extends Controller
             $transactionItems = [];
 
             foreach ($request->items as $item) {
-                $catalog = Catalog::findOrFail($item['catalog_id']);
+                $catalog = Catalog::where('id_produk', $item['catalog_id'])->firstOrFail();
 
                 // Check stock availability
                 if ($catalog->stock < $item['quantity']) {
-                    throw new \Exception("Insufficient stock for {$catalog->name}");
+                    throw new \Exception("Insufficient stock for {$catalog->nama}");
                 }
 
-                $subtotal = $catalog->price * $item['quantity'];
+                $subtotal = $catalog->harga * $item['quantity'];
                 $totalAmount += $subtotal;
 
                 $transactionItems[] = [
-                    'catalog_id' => $catalog->id,
-                    'product_name' => $catalog->name,
+                    'catalog_id_produk' => $catalog->id_produk,
+                    'product_name' => $catalog->nama,
                     'quantity' => $item['quantity'],
-                    'unit_price' => $catalog->price,
+                    'unit_price' => $catalog->harga,
                     'subtotal' => $subtotal,
                 ];
 
@@ -114,8 +119,6 @@ class TransactionController extends Controller
             $transaction = Transaction::create([
                 'transaction_code' => $transactionCode,
                 'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
-                'customer_email' => $request->customer_email,
                 'total_amount' => $totalAmount,
                 'payment_method' => $request->payment_method,
                 'payment_status' => $request->payment_status,
@@ -132,7 +135,7 @@ class TransactionController extends Controller
             DB::commit();
 
             return redirect()->route('transactions.show', $transaction)
-                ->with('success', 'Transaction created successfully.');
+                ->with('success', 'Transaksi berhasil dibuat.');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -167,12 +170,14 @@ class TransactionController extends Controller
     {
         $request->validate([
             'payment_status' => ['required', 'in:pending,paid,cancelled'],
+        ], [
+            'payment_status.required' => 'Data harus diisi',
         ]);
 
         $transaction->update([
             'payment_status' => $request->payment_status,
         ]);
 
-        return back()->with('success', 'Payment status updated successfully.');
+        return back()->with('success', 'Status pembayaran berhasil diubah.');
     }
 }

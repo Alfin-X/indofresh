@@ -10,18 +10,38 @@ class Catalog extends Model
     use HasFactory;
 
     /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id_produk';
+
+    /**
+     * The data type of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'description',
-        'price',
+        'id_produk',
+        'nama',
         'stock',
-        'category',
-        'image',
-        'status',
+        'keterangan',
+        'harga',
+        'gambar',
     ];
 
     /**
@@ -30,9 +50,8 @@ class Catalog extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'price' => 'decimal:2',
+        'harga' => 'integer',
         'stock' => 'integer',
-        'status' => 'boolean',
     ];
 
     /**
@@ -40,19 +59,19 @@ class Catalog extends Model
      */
     public function transactionItems()
     {
-        return $this->hasMany(TransactionItem::class);
+        return $this->hasMany(TransactionItem::class, 'catalog_id_produk', 'id_produk');
     }
 
     /**
-     * Scope for active products
+     * Scope a query to only include active catalogs
      */
     public function scopeActive($query)
     {
-        return $query->where('status', true);
+        return $query->where('stock', '>', 0);
     }
 
     /**
-     * Scope for products in stock
+     * Scope a query to only include catalogs with stock
      */
     public function scopeInStock($query)
     {

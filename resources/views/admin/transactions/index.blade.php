@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Transaction Management') }}
+            Manajemen Transaksi
         </h2>
     </x-slot>
 
@@ -10,9 +10,9 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-medium">All Transactions</h3>
+                        <h3 class="text-lg font-medium">Semua Transaksi</h3>
                         <a href="{{ route('transactions.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            New Transaction
+                            Transaksi Baru
                         </a>
                     </div>
 
@@ -26,14 +26,14 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Code</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Transaksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Jumlah</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode Pembayaran</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat Oleh</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -44,30 +44,37 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">{{ $transaction->customer_name }}</div>
-                                            @if($transaction->customer_phone)
-                                                <div class="text-sm text-gray-500">{{ $transaction->customer_phone }}</div>
-                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {{ ucfirst($transaction->payment_method) }}
+                                                @if($transaction->payment_method === 'cash')
+                                                    Tunai
+                                                @elseif($transaction->payment_method === 'transfer')
+                                                    Transfer Bank
+                                                @elseif($transaction->payment_method === 'card')
+                                                    Kartu Kredit/Debit
+                                                @elseif($transaction->payment_method === 'e-wallet')
+                                                    E-Wallet
+                                                @else
+                                                    {{ ucfirst($transaction->payment_method) }}
+                                                @endif
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($transaction->payment_status === 'paid')
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    Paid
+                                                    Lunas
                                                 </span>
                                             @elseif($transaction->payment_status === 'pending')
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                    Pending
+                                                    Menunggu
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    Cancelled
+                                                    Dibatalkan
                                                 </span>
                                             @endif
                                         </td>
@@ -80,14 +87,14 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
-                                                <a href="{{ route('transactions.show', $transaction) }}" 
-                                                   class="text-indigo-600 hover:text-indigo-900">View</a>
+                                                <a href="{{ route('transactions.show', $transaction) }}"
+                                                   class="text-indigo-600 hover:text-indigo-900">Lihat</a>
                                                 @if($transaction->payment_status === 'pending')
                                                     <form method="POST" action="{{ route('transactions.update-payment-status', $transaction) }}" class="inline">
                                                         @csrf
                                                         @method('PATCH')
                                                         <input type="hidden" name="payment_status" value="paid">
-                                                        <button type="submit" class="text-green-600 hover:text-green-900">Mark Paid</button>
+                                                        <button type="submit" class="text-green-600 hover:text-green-900">Tandai Lunas</button>
                                                     </form>
                                                 @endif
                                             </div>
@@ -95,7 +102,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">No transactions found.</td>
+                                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">Tidak ada transaksi ditemukan.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

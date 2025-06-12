@@ -18,7 +18,7 @@
                             Dasbor
                         </x-nav-link>
                         <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
-                            Karyawan
+                            Pegawai
                         </x-nav-link>
                         <x-nav-link :href="route('catalogs.index')" :active="request()->routeIs('catalogs.*')">
                             Katalog
@@ -63,9 +63,6 @@
                     @if(Auth::user()->role === 'admin')
                         <x-dropdown-link :href="route('admin.profile')">
                             Profil Saya
-                        </x-dropdown-link>
-                        <x-dropdown-link :href="route('admin.profile.edit')">
-                            Edit Profil
                         </x-dropdown-link>
                         <x-dropdown-link :href="route('admin.profile.change-password')">
                             Ubah Kata Sandi

@@ -20,9 +20,6 @@
                         <div class="p-6">
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-lg font-medium text-gray-900">Profile Information</h3>
-                                <a href="{{ route('admin.profile.edit') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    Edit Profile
-                                </a>
                             </div>
 
                             <div class="space-y-6">
@@ -34,16 +31,6 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Email</label>
                                     <div class="mt-1 text-sm text-gray-900">{{ $admin->email }}</div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Phone</label>
-                                    <div class="mt-1 text-sm text-gray-900">{{ $admin->phone ?? 'Not provided' }}</div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Address</label>
-                                    <div class="mt-1 text-sm text-gray-900">{{ $admin->address ?? 'Not provided' }}</div>
                                 </div>
 
                                 <div>
@@ -71,9 +58,6 @@
                         <div class="p-6">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">Account Actions</h3>
                             <div class="space-y-3">
-                                <a href="{{ route('admin.profile.edit') }}" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center">
-                                    Edit Profile
-                                </a>
                                 <a href="{{ route('admin.profile.change-password') }}" class="block w-full bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-center">
                                     Change Password
                                 </a>

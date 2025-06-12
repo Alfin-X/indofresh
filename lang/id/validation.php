@@ -132,7 +132,7 @@ return [
     'prohibited_unless' => 'Field :attribute dilarang kecuali :other ada di :values.',
     'prohibits' => 'Field :attribute melarang :other untuk ada.',
     'regex' => 'Format field :attribute tidak valid.',
-    'required' => 'Field :attribute wajib diisi.',
+    'required' => 'Data harus diisi',
     'required_array_keys' => 'Field :attribute harus berisi entri untuk: :values.',
     'required_if' => 'Field :attribute wajib diisi ketika :other adalah :value.',
     'required_if_accepted' => 'Field :attribute wajib diisi ketika :other diterima.',

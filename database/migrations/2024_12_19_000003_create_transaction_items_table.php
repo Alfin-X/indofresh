@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transaction_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('transaction_id')->constrained('transactions')->onDelete('cascade');
-            $table->foreignId('catalog_id')->constrained('catalogs');
+            $table->increments('id');
+            $table->unsignedInteger('transaction_id');
+            $table->char('catalog_id_produk', 6);
+            $table->foreign('transaction_id')->references('id')->on('transactions')->onDelete('cascade');
+            $table->foreign('catalog_id_produk')->references('id_produk')->on('catalogs');
             $table->string('product_name'); // Store product name at time of transaction
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);

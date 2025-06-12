@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Dasbor Karyawan
+                Dasbor Pegawai
             </h2>
             <div class="text-sm text-gray-600">
                 {{ \Carbon\Carbon::now('Asia/Jakarta')->locale('id')->format('l, d F Y H:i') }} WIB
@@ -16,7 +16,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-2">Selamat datang, {{ auth()->user()->name }}!</h3>
-                    <p class="text-gray-600">Ini adalah dasbor karyawan Anda. Anda dapat melihat produk, membuat transaksi, dan mengelola profil Anda.</p>
+                    <p class="text-gray-600">Ini adalah dasbor pegawai Anda. Anda dapat melihat produk, membuat transaksi, dan mengelola profil Anda.</p>
                 </div>
             </div>
 

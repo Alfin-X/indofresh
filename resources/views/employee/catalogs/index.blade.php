@@ -16,37 +16,20 @@
                         </a>
                     </div>
 
-                    <!-- Search and Filter -->
+                    <!-- Search -->
                     <div class="mb-6">
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <div class="flex-1">
-                                <input type="text" id="search" placeholder="Cari produk..."
-                                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                            </div>
-                            <div>
-                                <select id="category-filter" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">Semua Kategori</option>
-                                    <option value="Buah Segar">Buah Segar</option>
-                                    <option value="Buah Import">Buah Import</option>
-                                    <option value="Sayuran">Sayuran</option>
-                                    <option value="Rempah">Rempah</option>
-                                    <option value="Susu">Susu</option>
-                                    <option value="Daging">Daging</option>
-                                    <option value="Seafood">Seafood</option>
-                                    <option value="Minuman">Minuman</option>
-                                    <option value="Lainnya">Lainnya</option>
-                                </select>
-                            </div>
+                        <div class="flex-1">
+                            <input type="text" id="search" placeholder="Cari produk..."
+                                class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="products-grid">
                         @forelse($catalogs as $catalog)
                             <div class="product-card bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden"
-                                 data-name="{{ strtolower($catalog->name) }}"
-                                 data-category="{{ $catalog->category }}">
-                                @if($catalog->image)
-                                    <img src="{{ Storage::url($catalog->image) }}" alt="{{ $catalog->name }}" class="w-full h-48 object-cover">
+                                 data-name="{{ strtolower($catalog->nama) }}">
+                                @if($catalog->gambar)
+                                    <img src="data:image/jpeg;base64,{{ base64_encode($catalog->gambar) }}" alt="{{ $catalog->nama }}" class="w-full h-48 object-cover">
                                 @else
                                     <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
                                         <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,24 +39,23 @@
                                 @endif
 
                                 <div class="p-4">
-                                    <h4 class="font-semibold text-lg mb-2">{{ $catalog->name }}</h4>
-                                    <p class="text-gray-600 text-sm mb-2">{{ Str::limit($catalog->description, 100) }}</p>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-lg font-bold text-green-600">Rp {{ number_format($catalog->price, 0, ',', '.') }}</span>
-                                        <span class="text-sm {{ $catalog->stock > 10 ? 'text-green-600' : ($catalog->stock > 0 ? 'text-yellow-600' : 'text-red-600') }}">
-                                            Stok: {{ $catalog->stock }}
-                                        </span>
+                                    <div class="mb-2">
+                                        <span class="text-sm text-gray-500">ID: {{ $catalog->id_produk }}</span>
                                     </div>
-                                    @if($catalog->category)
-                                        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mb-3">{{ $catalog->category }}</span>
-                                    @endif
+                                    <h4 class="font-semibold text-lg mb-2">{{ $catalog->nama }}</h4>
+                                    <div class="mb-2">
+                                        <span class="text-sm text-gray-600">Stock: {{ $catalog->stock }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-lg font-bold text-green-600">Rp {{ number_format($catalog->harga, 0, ',', '.') }}</span>
+                                    </div>
 
                                     <div class="flex space-x-2">
                                         <a href="{{ route('catalogs.show', $catalog) }}" class="flex-1 bg-gray-500 hover:bg-gray-700 text-white text-center py-2 px-3 rounded text-sm">
                                             Lihat Detail
                                         </a>
                                         @if($catalog->stock > 0)
-                                            <button onclick="addToCart({{ $catalog->id }}, '{{ $catalog->name }}', {{ $catalog->price }}, {{ $catalog->stock }})"
+                                            <button onclick="addToCart('{{ $catalog->id_produk }}', '{{ $catalog->nama }}', {{ $catalog->harga }})"
                                                     class="flex-1 bg-blue-500 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm">
                                                 Tambah ke Keranjang
                                             </button>
@@ -143,24 +125,15 @@
             filterProducts();
         });
 
-        // Category filter
-        document.getElementById('category-filter').addEventListener('change', function() {
-            filterProducts();
-        });
-
         function filterProducts() {
             const searchTerm = document.getElementById('search').value.toLowerCase();
-            const selectedCategory = document.getElementById('category-filter').value;
             const productCards = document.querySelectorAll('.product-card');
 
             productCards.forEach(card => {
                 const productName = card.dataset.name;
-                const productCategory = card.dataset.category;
-
                 const matchesSearch = productName.includes(searchTerm);
-                const matchesCategory = !selectedCategory || productCategory === selectedCategory;
 
-                if (matchesSearch && matchesCategory) {
+                if (matchesSearch) {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
@@ -168,18 +141,13 @@
             });
         }
 
-        function addToCart(id, name, price, stock) {
+        function addToCart(id, name, price) {
             const existingItem = cart.find(item => item.id === id);
 
             if (existingItem) {
-                if (existingItem.quantity < stock) {
-                    existingItem.quantity++;
-                } else {
-                    alert('Tidak dapat menambah item lagi. Batas stok tercapai.');
-                    return;
-                }
+                existingItem.quantity++;
             } else {
-                cart.push({ id, name, price, quantity: 1, stock });
+                cart.push({ id, name, price, quantity: 1 });
             }
 
             updateCartDisplay();
@@ -220,13 +188,11 @@
             const item = cart.find(item => item.id === id);
             if (item) {
                 const newQuantity = item.quantity + change;
-                if (newQuantity > 0 && newQuantity <= item.stock) {
+                if (newQuantity > 0) {
                     item.quantity = newQuantity;
                     updateCartDisplay();
-                } else if (newQuantity <= 0) {
-                    removeFromCart(id);
                 } else {
-                    alert('Tidak dapat menambah item lagi. Batas stok tercapai.');
+                    removeFromCart(id);
                 }
             }
         }

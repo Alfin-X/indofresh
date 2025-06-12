@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Catalog;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class CatalogController extends Controller
 {
@@ -23,8 +22,8 @@ class CatalogController extends Controller
                 }
             }
 
-            // Only admin can create, edit, update, delete
-            if (in_array($action, ['create', 'store', 'edit', 'update', 'destroy'])) {
+            // Only admin can create, edit, update
+            if (in_array($action, ['create', 'store', 'edit', 'update'])) {
                 if ($user->isAdmin()) {
                     return $next($request);
                 }
@@ -39,7 +38,7 @@ class CatalogController extends Controller
      */
     public function index()
     {
-        $catalogs = Catalog::active()->paginate(12);
+        $catalogs = Catalog::paginate(12);
         $user = auth()->user();
 
         if ($user->isAdmin()) {
@@ -63,24 +62,33 @@ class CatalogController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'id_produk' => ['required', 'string', 'size:6', 'unique:catalogs,id_produk'],
+            'nama' => ['required', 'string', 'max:20'],
             'stock' => ['required', 'integer', 'min:0'],
-            'category' => ['nullable', 'string', 'max:100'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-            'status' => ['boolean'],
+            'keterangan' => ['required', 'string', 'max:50'],
+            'harga' => ['required', 'integer', 'min:0'],
+            'gambar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        ], [
+            'id_produk.required' => 'Data tidak boleh kosong',
+            'id_produk.size' => 'ID Produk harus 6 karakter',
+            'id_produk.unique' => 'ID Produk sudah digunakan',
+            'nama.required' => 'Data tidak boleh kosong',
+            'nama.max' => 'Nama produk maksimal 20 karakter',
+            'stock.required' => 'Data tidak boleh kosong',
+            'keterangan.required' => 'Data tidak boleh kosong',
+            'keterangan.max' => 'Keterangan maksimal 50 karakter',
+            'harga.required' => 'Data tidak boleh kosong',
         ]);
 
-        $data = $request->all();
+        $data = $request->only(['id_produk', 'nama', 'stock', 'keterangan', 'harga']);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('catalogs', 'public');
+        if ($request->hasFile('gambar')) {
+            $data['gambar'] = file_get_contents($request->file('gambar')->getRealPath());
         }
 
         Catalog::create($data);
 
-        return redirect()->route('catalogs.index')->with('success', 'Product added successfully.');
+        return redirect('/catalogs')->with('success', 'Produk berhasil ditambahkan.');
     }
 
     /**
@@ -111,42 +119,35 @@ class CatalogController extends Controller
     public function update(Request $request, Catalog $catalog)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'nama' => ['required', 'string', 'max:20'],
             'stock' => ['required', 'integer', 'min:0'],
-            'category' => ['nullable', 'string', 'max:100'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-            'status' => ['boolean'],
+            'keterangan' => ['required', 'string', 'max:50'],
+            'harga' => ['required', 'integer', 'min:0'],
+            'gambar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        ], [
+            'nama.required' => 'Data tidak boleh kosong',
+            'nama.max' => 'Nama produk maksimal 20 karakter',
+            'stock.required' => 'Data tidak boleh kosong',
+            'keterangan.required' => 'Data tidak boleh kosong',
+            'keterangan.max' => 'Keterangan maksimal 50 karakter',
+            'harga.required' => 'Data tidak boleh kosong',
         ]);
 
-        $data = $request->all();
+        $data = $request->only(['nama', 'stock', 'keterangan', 'harga']);
 
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($catalog->image) {
-                Storage::disk('public')->delete($catalog->image);
-            }
-            $data['image'] = $request->file('image')->store('catalogs', 'public');
+        if ($request->hasFile('gambar')) {
+            $data['gambar'] = file_get_contents($request->file('gambar')->getRealPath());
         }
 
         $catalog->update($data);
 
-        return redirect()->route('catalogs.index')->with('success', 'Product updated successfully.');
-    }
-
-    /**
-     * Remove the specified catalog
-     */
-    public function destroy(Catalog $catalog)
-    {
-        // Delete image if exists
-        if ($catalog->image) {
-            Storage::disk('public')->delete($catalog->image);
+        // Handle AJAX request
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Produk berhasil diubah.']);
         }
 
-        $catalog->delete();
-
-        return redirect()->route('catalogs.index')->with('success', 'Product deleted successfully.');
+        return redirect('/catalogs')->with('success', 'Produk berhasil diubah.');
     }
+
+
 }

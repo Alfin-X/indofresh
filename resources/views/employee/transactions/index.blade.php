@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('My Transactions') }}
+            Transaksi Saya
         </h2>
     </x-slot>
 
@@ -10,9 +10,9 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-medium">Transaction History</h3>
+                        <h3 class="text-lg font-medium">Riwayat Transaksi</h3>
                         <a href="{{ route('transactions.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            New Transaction
+                            Transaksi Baru
                         </a>
                     </div>
 
@@ -32,7 +32,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-500">Total Transactions</div>
+                                    <div class="text-sm font-medium text-gray-500">Total Transaksi</div>
                                     <div class="text-2xl font-bold text-gray-900">{{ $transactions->total() }}</div>
                                 </div>
                             </div>
@@ -46,7 +46,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-500">Today's Transactions</div>
+                                    <div class="text-sm font-medium text-gray-500">Transaksi Hari Ini</div>
                                     <div class="text-2xl font-bold text-gray-900">{{ \App\Models\Transaction::where('created_by', auth()->id())->today()->count() }}</div>
                                 </div>
                             </div>
@@ -60,7 +60,7 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-500">Total Sales</div>
+                                    <div class="text-sm font-medium text-gray-500">Total Penjualan</div>
                                     <div class="text-2xl font-bold text-gray-900">Rp {{ number_format(\App\Models\Transaction::where('created_by', auth()->id())->where('payment_status', 'paid')->sum('total_amount'), 0, ',', '.') }}</div>
                                 </div>
                             </div>
@@ -71,13 +71,13 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Code</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Transaksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Jumlah</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode Pembayaran</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -88,30 +88,37 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">{{ $transaction->customer_name }}</div>
-                                            @if($transaction->customer_phone)
-                                                <div class="text-sm text-gray-500">{{ $transaction->customer_phone }}</div>
-                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {{ ucfirst($transaction->payment_method) }}
+                                                @if($transaction->payment_method === 'cash')
+                                                    Tunai
+                                                @elseif($transaction->payment_method === 'transfer')
+                                                    Transfer Bank
+                                                @elseif($transaction->payment_method === 'card')
+                                                    Kartu Kredit/Debit
+                                                @elseif($transaction->payment_method === 'e-wallet')
+                                                    E-Wallet
+                                                @else
+                                                    {{ ucfirst($transaction->payment_method) }}
+                                                @endif
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($transaction->payment_status === 'paid')
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    Paid
+                                                    Lunas
                                                 </span>
                                             @elseif($transaction->payment_status === 'pending')
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                    Pending
+                                                    Menunggu
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    Cancelled
+                                                    Dibatalkan
                                                 </span>
                                             @endif
                                         </td>
@@ -120,8 +127,8 @@
                                             <div class="text-sm text-gray-500">{{ $transaction->transaction_date->format('H:i') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('transactions.show', $transaction) }}" 
-                                               class="text-indigo-600 hover:text-indigo-900">View Details</a>
+                                            <a href="{{ route('transactions.show', $transaction) }}"
+                                               class="text-indigo-600 hover:text-indigo-900">Lihat Detail</a>
                                         </td>
                                     </tr>
                                 @empty
@@ -131,10 +138,10 @@
                                                 <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                 </svg>
-                                                <h3 class="text-lg font-medium text-gray-900 mb-2">No transactions yet</h3>
-                                                <p class="text-gray-500 mb-4">You haven't created any transactions yet. Start by creating your first transaction.</p>
+                                                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada transaksi</h3>
+                                                <p class="text-gray-500 mb-4">Anda belum membuat transaksi apapun. Mulai dengan membuat transaksi pertama Anda.</p>
                                                 <a href="{{ route('transactions.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                                    Create First Transaction
+                                                    Buat Transaksi Pertama
                                                 </a>
                                             </div>
                                         </td>

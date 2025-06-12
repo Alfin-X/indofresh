@@ -25,26 +25,27 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         @forelse($catalogs as $catalog)
                             <div class="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden">
-                                @if($catalog->image)
-                                    <img src="{{ Storage::url($catalog->image) }}" alt="{{ $catalog->name }}" class="w-full h-48 object-cover">
+                                @if($catalog->gambar)
+                                    <img src="data:image/jpeg;base64,{{ base64_encode($catalog->gambar) }}" alt="{{ $catalog->nama }}" class="w-full h-48 object-cover">
                                 @else
                                     <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
                                         <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z"></path>
                                         </svg>
                                     </div>
                                 @endif
 
                                 <div class="p-4">
-                                    <h4 class="font-semibold text-lg mb-2">{{ $catalog->name }}</h4>
-                                    <p class="text-gray-600 text-sm mb-2">{{ Str::limit($catalog->description, 100) }}</p>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-lg font-bold text-green-600">Rp {{ number_format($catalog->price, 0, ',', '.') }}</span>
-                                        <span class="text-sm text-gray-500">Stok: {{ $catalog->stock }}</span>
+                                    <div class="mb-2">
+                                        <span class="text-sm text-gray-500">ID: {{ $catalog->id_produk }}</span>
                                     </div>
-                                    @if($catalog->category)
-                                        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mb-3">{{ $catalog->category }}</span>
-                                    @endif
+                                    <h4 class="font-semibold text-lg mb-2">{{ $catalog->nama }}</h4>
+                                    <div class="mb-2">
+                                        <span class="text-sm text-gray-600">Stock: {{ $catalog->stock }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-lg font-bold text-green-600">Rp {{ number_format($catalog->harga, 0, ',', '.') }}</span>
+                                    </div>
 
                                     <div class="flex space-x-2">
                                         <a href="{{ route('catalogs.show', $catalog) }}" class="flex-1 bg-gray-500 hover:bg-gray-700 text-white text-center py-1 px-2 rounded text-sm">
@@ -53,15 +54,6 @@
                                         <a href="{{ route('admin.catalogs.edit', $catalog) }}" class="flex-1 bg-yellow-500 hover:bg-yellow-700 text-white text-center py-1 px-2 rounded text-sm">
                                             Edit
                                         </a>
-                                        <form method="POST" action="{{ route('admin.catalogs.destroy', $catalog) }}"
-                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')"
-                                              class="flex-1">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="w-full bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded text-sm">
-                                                Hapus
-                                            </button>
-                                        </form>
                                     </div>
                                 </div>
                             </div>

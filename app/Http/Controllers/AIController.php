@@ -28,15 +28,15 @@ class AIController extends Controller
         $salesData = $this->getSalesAnalytics();
         $productAnalytics = $this->getProductAnalytics();
         $revenueAnalytics = $this->getRevenueAnalytics();
-        $customerAnalytics = $this->getCustomerAnalytics();
         $fruitPrediction = $this->getFruitPrediction();
+        $stockPrediction = $this->getStockPrediction();
 
         return view('admin.ai.dashboard', compact(
             'salesData',
             'productAnalytics',
             'revenueAnalytics',
-            'customerAnalytics',
-            'fruitPrediction'
+            'fruitPrediction',
+            'stockPrediction'
         ));
     }
 
@@ -77,26 +77,25 @@ class AIController extends Controller
     private function getProductAnalytics()
     {
         // Best selling products
-        $bestSelling = TransactionItem::select('catalog_id', 'product_name')
+        $bestSelling = TransactionItem::select('catalog_id_produk', 'product_name')
             ->selectRaw('SUM(quantity) as total_sold, SUM(subtotal) as total_revenue')
             ->whereHas('transaction', function($query) {
                 $query->where('payment_status', 'paid');
             })
-            ->groupBy('catalog_id', 'product_name')
+            ->groupBy('catalog_id_produk', 'product_name')
             ->orderBy('total_sold', 'desc')
             ->limit(10)
             ->get();
 
         // Category performance
-        $categoryPerformance = Catalog::select('category')
+        $categoryPerformance = Catalog::select('keterangan as category')
             ->selectRaw('COUNT(*) as product_count')
-            ->whereNotNull('category')
-            ->groupBy('category')
+            ->whereNotNull('keterangan')
+            ->groupBy('keterangan')
             ->get();
 
         // Low stock products
         $lowStock = Catalog::where('stock', '<=', 10)
-            ->where('status', true)
             ->orderBy('stock')
             ->get();
 
@@ -139,29 +138,7 @@ class AIController extends Controller
         ];
     }
 
-    /**
-     * Get customer analytics data
-     */
-    private function getCustomerAnalytics()
-    {
-        // Top customers by transaction count
-        $topCustomers = Transaction::where('payment_status', 'paid')
-            ->selectRaw('customer_name, customer_phone, COUNT(*) as transaction_count, SUM(total_amount) as total_spent')
-            ->groupBy('customer_name', 'customer_phone')
-            ->orderBy('total_spent', 'desc')
-            ->limit(10)
-            ->get();
 
-        // New vs returning customers (simplified)
-        $totalCustomers = Transaction::where('payment_status', 'paid')
-            ->distinct('customer_name', 'customer_phone')
-            ->count();
-
-        return [
-            'top_customers' => $topCustomers,
-            'total_unique_customers' => $totalCustomers,
-        ];
-    }
 
     /**
      * Get chart data for AJAX requests
@@ -171,33 +148,100 @@ class AIController extends Controller
         $type = $request->get('type');
 
         switch ($type) {
-            case 'daily_sales':
-                return response()->json($this->getDailySalesChart());
+            case 'monthly_fruit_sales':
+                return response()->json($this->getMonthlyFruitSalesChart());
             case 'monthly_revenue':
                 return response()->json($this->getMonthlyRevenueChart());
             case 'product_categories':
                 return response()->json($this->getProductCategoriesChart());
             case 'payment_methods':
                 return response()->json($this->getPaymentMethodsChart());
+            case 'stock_prediction':
+                return response()->json($this->getStockPrediction());
             default:
                 return response()->json(['error' => 'Invalid chart type'], 400);
         }
     }
 
-    private function getDailySalesChart()
+    private function getMonthlyFruitSalesChart()
     {
-        $data = Transaction::where('payment_status', 'paid')
-            ->where('transaction_date', '>=', Carbon::now()->subDays(7))
-            ->selectRaw('DATE(transaction_date) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
+        // Get monthly fruit sales data from transaction items
+        $data = TransactionItem::join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
+            ->join('catalogs', 'transaction_items.catalog_id_produk', '=', 'catalogs.id_produk')
+            ->where('transactions.payment_status', 'paid')
+            ->where('transactions.transaction_date', '>=', Carbon::now()->subMonths(6))
+            ->selectRaw('
+                YEAR(transactions.transaction_date) as year,
+                MONTH(transactions.transaction_date) as month,
+                catalogs.nama as fruit_name,
+                SUM(transaction_items.quantity) as total_kg
+            ')
+            ->groupBy('year', 'month', 'catalogs.nama')
+            ->orderBy('year')
+            ->orderBy('month')
             ->get();
 
+        // Group data by month and fruit
+        $monthlyData = [];
+        $fruits = $data->pluck('fruit_name')->unique()->values();
+
+        // Initialize months for last 6 months
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $monthKey = $date->format('Y-m');
+            $monthLabel = $date->format('M Y');
+
+            $monthlyData[$monthKey] = [
+                'label' => $monthLabel,
+                'data' => []
+            ];
+
+            // Initialize each fruit with 0
+            foreach ($fruits as $fruit) {
+                $monthlyData[$monthKey]['data'][$fruit] = 0;
+            }
+        }
+
+        // Fill actual data
+        foreach ($data as $item) {
+            $monthKey = $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT);
+            if (isset($monthlyData[$monthKey])) {
+                $monthlyData[$monthKey]['data'][$item->fruit_name] = (float) $item->total_kg;
+            }
+        }
+
+        // Prepare chart data
+        $labels = array_values(array_map(function($month) {
+            return $month['label'];
+        }, $monthlyData));
+
+        $datasets = [];
+        $colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+        ];
+
+        $colorIndex = 0;
+        foreach ($fruits as $fruit) {
+            $fruitData = [];
+            foreach ($monthlyData as $month) {
+                $fruitData[] = $month['data'][$fruit];
+            }
+
+            $datasets[] = [
+                'label' => $fruit,
+                'data' => $fruitData,
+                'backgroundColor' => $colors[$colorIndex % count($colors)],
+                'borderColor' => $colors[$colorIndex % count($colors)],
+                'borderWidth' => 2,
+                'fill' => false
+            ];
+            $colorIndex++;
+        }
+
         return [
-            'labels' => $data->pluck('date')->map(function($date) {
-                return Carbon::parse($date)->format('M d');
-            }),
-            'data' => $data->pluck('count'),
+            'labels' => $labels,
+            'datasets' => $datasets
         ];
     }
 
@@ -221,13 +265,13 @@ class AIController extends Controller
 
     private function getProductCategoriesChart()
     {
-        $data = TransactionItem::select('catalogs.category')
+        $data = TransactionItem::select('catalogs.keterangan as category')
             ->selectRaw('SUM(transaction_items.quantity) as total_sold')
-            ->join('catalogs', 'transaction_items.catalog_id', '=', 'catalogs.id')
+            ->join('catalogs', 'transaction_items.catalog_id_produk', '=', 'catalogs.id_produk')
             ->join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
             ->where('transactions.payment_status', 'paid')
-            ->whereNotNull('catalogs.category')
-            ->groupBy('catalogs.category')
+            ->whereNotNull('catalogs.keterangan')
+            ->groupBy('catalogs.keterangan')
             ->get();
 
         return [
@@ -300,6 +344,138 @@ class AIController extends Controller
                 ]
             ]
         ];
+    }
+
+    /**
+     * Get stock prediction and recommendations
+     */
+    private function getStockPrediction()
+    {
+        try {
+            // Get sales velocity for each product (last 30 days)
+            $salesVelocity = TransactionItem::select('catalog_id_produk', 'product_name')
+                ->selectRaw('SUM(quantity) as total_sold, AVG(quantity) as avg_per_transaction')
+                ->join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
+                ->where('transactions.payment_status', 'paid')
+                ->where('transactions.transaction_date', '>=', Carbon::now()->subDays(30))
+                ->groupBy('catalog_id_produk', 'product_name')
+                ->get();
+
+            // Get current stock levels
+            $currentStock = Catalog::select('id_produk', 'nama', 'stock', 'harga', 'keterangan')
+                ->get()
+                ->keyBy('id_produk');
+
+            $predictions = [];
+            $recommendations = [];
+
+            foreach ($salesVelocity as $item) {
+                $productId = $item->catalog_id_produk;
+                $product = $currentStock->get($productId);
+
+                if (!$product) continue;
+
+                // Calculate daily sales rate
+                $dailySalesRate = $item->total_sold / 30;
+
+                // Predict days until stock out
+                $daysUntilStockOut = $product->stock > 0 && $dailySalesRate > 0
+                    ? $product->stock / $dailySalesRate
+                    : 999;
+
+                // Calculate recommended reorder quantity
+                // Formula: (daily_sales_rate * lead_time_days * safety_factor) + buffer_stock
+                $leadTimeDays = 7; // Assume 7 days lead time
+                $safetyFactor = 1.5; // 50% safety buffer
+                $bufferStock = 10; // Minimum buffer stock
+
+                $recommendedReorder = ceil(($dailySalesRate * $leadTimeDays * $safetyFactor) + $bufferStock);
+
+                // Determine urgency level
+                $urgency = 'low';
+                if ($daysUntilStockOut <= 3) {
+                    $urgency = 'critical';
+                } elseif ($daysUntilStockOut <= 7) {
+                    $urgency = 'high';
+                } elseif ($daysUntilStockOut <= 14) {
+                    $urgency = 'medium';
+                }
+
+                $prediction = [
+                    'product_id' => $productId,
+                    'product_name' => $product->nama,
+                    'current_stock' => $product->stock,
+                    'daily_sales_rate' => round($dailySalesRate, 2),
+                    'days_until_stockout' => round($daysUntilStockOut, 1),
+                    'recommended_reorder' => $recommendedReorder,
+                    'urgency' => $urgency,
+                    'category' => $product->keterangan,
+                    'price' => $product->harga,
+                    'total_sold_30days' => $item->total_sold,
+                    'avg_per_transaction' => round($item->avg_per_transaction, 2)
+                ];
+
+                $predictions[] = $prediction;
+
+                // Add to recommendations if urgent
+                if ($urgency === 'critical' || $urgency === 'high') {
+                    $recommendations[] = $prediction;
+                }
+            }
+
+            // Sort predictions by urgency and days until stockout
+            usort($predictions, function($a, $b) {
+                $urgencyOrder = ['critical' => 1, 'high' => 2, 'medium' => 3, 'low' => 4];
+
+                if ($urgencyOrder[$a['urgency']] !== $urgencyOrder[$b['urgency']]) {
+                    return $urgencyOrder[$a['urgency']] - $urgencyOrder[$b['urgency']];
+                }
+
+                return $a['days_until_stockout'] - $b['days_until_stockout'];
+            });
+
+            // Sort recommendations by urgency
+            usort($recommendations, function($a, $b) {
+                $urgencyOrder = ['critical' => 1, 'high' => 2, 'medium' => 3, 'low' => 4];
+                return $urgencyOrder[$a['urgency']] - $urgencyOrder[$b['urgency']];
+            });
+
+            // Calculate summary statistics
+            $totalProducts = count($predictions);
+            $criticalProducts = count(array_filter($predictions, fn($p) => $p['urgency'] === 'critical'));
+            $highUrgencyProducts = count(array_filter($predictions, fn($p) => $p['urgency'] === 'high'));
+            $totalRecommendedValue = array_sum(array_map(fn($r) => $r['recommended_reorder'] * $r['price'], $recommendations));
+
+            return [
+                'predictions' => $predictions,
+                'recommendations' => array_slice($recommendations, 0, 10), // Top 10 recommendations
+                'summary' => [
+                    'total_products_analyzed' => $totalProducts,
+                    'critical_stock_products' => $criticalProducts,
+                    'high_urgency_products' => $highUrgencyProducts,
+                    'total_recommended_investment' => $totalRecommendedValue,
+                    'analysis_period' => '30 days',
+                    'last_updated' => Carbon::now()->format('Y-m-d H:i:s')
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            \Log::error('Stock prediction error', ['error' => $e->getMessage()]);
+
+            return [
+                'predictions' => [],
+                'recommendations' => [],
+                'summary' => [
+                    'total_products_analyzed' => 0,
+                    'critical_stock_products' => 0,
+                    'high_urgency_products' => 0,
+                    'total_recommended_investment' => 0,
+                    'analysis_period' => '30 days',
+                    'last_updated' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'error' => 'Unable to generate stock predictions'
+                ]
+            ];
+        }
     }
 
     /**

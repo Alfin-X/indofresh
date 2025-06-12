@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Transaction Details') }}
+            Detail Transaksi
         </h2>
     </x-slot>
 
@@ -24,15 +24,15 @@
                         <div class="text-right">
                             @if($transaction->payment_status === 'paid')
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                    Paid
+                                    Lunas
                                 </span>
                             @elseif($transaction->payment_status === 'pending')
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                                    Pending
+                                    Menunggu
                                 </span>
                             @else
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                    Cancelled
+                                    Dibatalkan
                                 </span>
                             @endif
                         </div>
@@ -41,36 +41,36 @@
                     <!-- Customer Information -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-gray-900 mb-3">Customer Information</h4>
+                            <h4 class="font-semibold text-gray-900 mb-3">Informasi Pelanggan</h4>
                             <div class="space-y-2">
                                 <div>
-                                    <span class="text-sm text-gray-600">Name:</span>
+                                    <span class="text-sm text-gray-600">Nama:</span>
                                     <span class="ml-2 font-medium">{{ $transaction->customer_name }}</span>
                                 </div>
-                                @if($transaction->customer_phone)
-                                    <div>
-                                        <span class="text-sm text-gray-600">Phone:</span>
-                                        <span class="ml-2 font-medium">{{ $transaction->customer_phone }}</span>
-                                    </div>
-                                @endif
-                                @if($transaction->customer_email)
-                                    <div>
-                                        <span class="text-sm text-gray-600">Email:</span>
-                                        <span class="ml-2 font-medium">{{ $transaction->customer_email }}</span>
-                                    </div>
-                                @endif
                             </div>
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-gray-900 mb-3">Transaction Information</h4>
+                            <h4 class="font-semibold text-gray-900 mb-3">Informasi Transaksi</h4>
                             <div class="space-y-2">
                                 <div>
-                                    <span class="text-sm text-gray-600">Payment Method:</span>
-                                    <span class="ml-2 font-medium">{{ ucfirst($transaction->payment_method) }}</span>
+                                    <span class="text-sm text-gray-600">Metode Pembayaran:</span>
+                                    <span class="ml-2 font-medium">
+                                        @if($transaction->payment_method === 'cash')
+                                            Tunai
+                                        @elseif($transaction->payment_method === 'transfer')
+                                            Transfer Bank
+                                        @elseif($transaction->payment_method === 'card')
+                                            Kartu Kredit/Debit
+                                        @elseif($transaction->payment_method === 'e-wallet')
+                                            E-Wallet
+                                        @else
+                                            {{ ucfirst($transaction->payment_method) }}
+                                        @endif
+                                    </span>
                                 </div>
                                 <div>
-                                    <span class="text-sm text-gray-600">Total Amount:</span>
+                                    <span class="text-sm text-gray-600">Total Jumlah:</span>
                                     <span class="ml-2 font-bold text-green-600">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</span>
                                 </div>
                             </div>
@@ -79,14 +79,14 @@
 
                     <!-- Transaction Items -->
                     <div class="mb-6">
-                        <h4 class="font-semibold text-gray-900 mb-3">Items</h4>
+                        <h4 class="font-semibold text-gray-900 mb-3">Item</h4>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Satuan</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
                                     </tr>
                                 </thead>
@@ -121,7 +121,7 @@
                     <!-- Notes -->
                     @if($transaction->notes)
                         <div class="mb-6">
-                            <h4 class="font-semibold text-gray-900 mb-3">Notes</h4>
+                            <h4 class="font-semibold text-gray-900 mb-3">Catatan</h4>
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <p class="text-gray-700">{{ $transaction->notes }}</p>
                             </div>
@@ -131,11 +131,11 @@
                     <!-- Actions -->
                     <div class="flex justify-between items-center">
                         <a href="{{ route('transactions.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                            Back to My Transactions
+                            Kembali ke Transaksi Saya
                         </a>
-                        
+
                         <a href="{{ route('transactions.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Create New Transaction
+                            Buat Transaksi Baru
                         </a>
                     </div>
                 </div>

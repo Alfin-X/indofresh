@@ -54,7 +54,7 @@ class EmployeeProfileController extends Controller
             'address' => $request->address,
         ]);
 
-        return redirect()->route('employee.profile')->with('success', 'Profile updated successfully.');
+        return redirect()->route('employee.profile')->with('success', 'Profil berhasil diubah.');
     }
 
     /**
@@ -78,13 +78,13 @@ class EmployeeProfileController extends Controller
         $employee = Auth::user();
 
         if (!Hash::check($request->current_password, $employee->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            return back()->withErrors(['current_password' => 'Kata sandi saat ini salah.']);
         }
 
         $employee->update([
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('employee.profile')->with('success', 'Password updated successfully.');
+        return redirect()->route('employee.profile')->with('success', 'Kata sandi berhasil diubah.');
     }
 }

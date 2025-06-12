@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('transaction_code')->unique();
             $table->string('customer_name');
             $table->string('customer_phone')->nullable();
@@ -22,7 +22,8 @@ return new class extends Migration
             $table->enum('payment_status', ['pending', 'paid', 'cancelled'])->default('pending');
             $table->datetime('transaction_date');
             $table->text('notes')->nullable();
-            $table->foreignId('created_by')->constrained('users');
+            $table->unsignedInteger('created_by');
+            $table->foreign('created_by')->references('id')->on('users');
             $table->timestamps();
         });
     }

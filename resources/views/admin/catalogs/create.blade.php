@@ -13,33 +13,24 @@
                         @csrf
 
                         <div class="mb-4">
-                            <label for="name" class="block font-medium text-sm text-gray-700">Product Name</label>
-                            <input id="name" name="name" type="text" value="{{ old('name') }}" required autofocus
+                            <label for="id_produk" class="block font-medium text-sm text-gray-700">ID Produk (6 karakter)</label>
+                            <input id="id_produk" name="id_produk" type="text" value="{{ old('id_produk') }}" required autofocus maxlength="6"
                                 class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                            @error('name')
+                            @error('id_produk')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div class="mb-4">
-                            <label for="description" class="block font-medium text-sm text-gray-700">Description</label>
-                            <textarea id="description" name="description" rows="4"
-                                class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">{{ old('description') }}</textarea>
-                            @error('description')
+                            <label for="nama" class="block font-medium text-sm text-gray-700">Nama Produk (maksimal 20 karakter)</label>
+                            <input id="nama" name="nama" type="text" value="{{ old('nama') }}" required maxlength="20"
+                                class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
+                            @error('nama')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label for="price" class="block font-medium text-sm text-gray-700">Price (Rp)</label>
-                                <input id="price" name="price" type="number" step="0.01" min="0" value="{{ old('price') }}" required
-                                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                                @error('price')
-                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
                             <div>
                                 <label for="stock" class="block font-medium text-sm text-gray-700">Stock</label>
                                 <input id="stock" name="stock" type="number" min="0" value="{{ old('stock') }}" required
@@ -48,38 +39,31 @@
                                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+                            <div>
+                                <label for="harga" class="block font-medium text-sm text-gray-700">Harga (Rp)</label>
+                                <input id="harga" name="harga" type="number" min="0" value="{{ old('harga') }}" required
+                                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
+                                @error('harga')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="mb-4">
-                            <label for="category" class="block font-medium text-sm text-gray-700">Kategori</label>
-                            <select id="category" name="category"
+                            <label for="keterangan" class="block font-medium text-sm text-gray-700">Keterangan (maksimal 50 karakter)</label>
+                            <input id="keterangan" name="keterangan" type="text" value="{{ old('keterangan') }}" required maxlength="50"
                                 class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
-                                <option value="">Pilih Kategori</option>
-                                <option value="Buah Segar" {{ old('category') == 'Buah Segar' ? 'selected' : '' }}>Buah Segar</option>
-                                <option value="Buah Import" {{ old('category') == 'Buah Import' ? 'selected' : '' }}>Buah Import</option>
-                            </select>
-                            @error('category')
+                            @error('keterangan')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div class="mb-4">
-                            <label for="image" class="block font-medium text-sm text-gray-700">Product Image</label>
-                            <input id="image" name="image" type="file" accept="image/*"
+                            <label for="gambar" class="block font-medium text-sm text-gray-700">Gambar Produk</label>
+                            <input id="gambar" name="gambar" type="file" accept="image/*"
                                 class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
                             <p class="text-sm text-gray-500 mt-1">Max file size: 2MB. Supported formats: JPEG, PNG, JPG, GIF</p>
-                            @error('image')
-                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="flex items-center">
-                                <input type="checkbox" name="status" value="1" {{ old('status', true) ? 'checked' : '' }}
-                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <span class="ml-2 text-sm text-gray-600">Active (visible to customers)</span>
-                            </label>
-                            @error('status')
+                            @error('gambar')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -97,4 +81,25 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Set custom validation messages for HTML5 validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const requiredInputs = document.querySelectorAll('input[required], textarea[required]');
+
+            requiredInputs.forEach(function(input) {
+                input.addEventListener('invalid', function() {
+                    if (this.validity.valueMissing) {
+                        this.setCustomValidity('Data tidak boleh kosong');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+
+                input.addEventListener('input', function() {
+                    this.setCustomValidity('');
+                });
+            });
+        });
+    </script>
 </x-app-layout>

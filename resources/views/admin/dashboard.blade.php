@@ -91,13 +91,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Manajemen Karyawan</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Manajemen Pegawai</h3>
                         <div class="space-y-3">
                             <a href="{{ route('employees.index') }}" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center">
-                                Lihat Karyawan
+                                Lihat Pegawai
                             </a>
                             <a href="{{ route('employees.create') }}" class="block w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center">
-                                Tambah Karyawan
+                                Tambah Pegawai
                             </a>
                         </div>
                     </div>

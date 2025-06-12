@@ -36,38 +36,7 @@ class AdminController extends Controller
         return view('admin.profile.show', compact('admin'));
     }
 
-    /**
-     * Show edit admin profile form
-     */
-    public function editProfile()
-    {
-        $admin = Auth::user();
-        return view('admin.profile.edit', compact('admin'));
-    }
 
-    /**
-     * Update admin profile
-     */
-    public function updateProfile(Request $request)
-    {
-        $admin = Auth::user();
-        
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $admin->id],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:500'],
-        ]);
-
-        $admin->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-        ]);
-
-        return redirect()->route('admin.profile')->with('success', 'Profile updated successfully.');
-    }
 
     /**
      * Show change password form
@@ -90,13 +59,13 @@ class AdminController extends Controller
         $admin = Auth::user();
 
         if (!Hash::check($request->current_password, $admin->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            return back()->withErrors(['current_password' => 'Kata sandi saat ini salah.']);
         }
 
         $admin->update([
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('admin.profile')->with('success', 'Password updated successfully.');
+        return redirect()->route('admin.profile')->with('success', 'Kata sandi berhasil diubah.');
     }
 }
