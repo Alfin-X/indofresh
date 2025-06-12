@@ -76,15 +76,14 @@ class AIController extends Controller
      */
     private function getProductAnalytics()
     {
-        // Best selling products
-        $bestSelling = TransactionItem::select('catalog_id_produk', 'product_name')
-            ->selectRaw('SUM(quantity) as total_sold, SUM(subtotal) as total_revenue')
-            ->whereHas('transaction', function($query) {
-                $query->where('payment_status', 'paid');
-            })
-            ->groupBy('catalog_id_produk', 'product_name')
+        // All fruits with sales data (not just best selling)
+        $allFruits = Catalog::leftJoin('transaction_items', 'catalogs.id_produk', '=', 'transaction_items.catalog_id_produk')
+            ->leftJoin('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
+            ->select('catalogs.id_produk', 'catalogs.nama as product_name', 'catalogs.stock', 'catalogs.harga')
+            ->selectRaw('COALESCE(SUM(CASE WHEN transactions.payment_status = "paid" THEN transaction_items.quantity ELSE 0 END), 0) as total_sold')
+            ->selectRaw('COALESCE(SUM(CASE WHEN transactions.payment_status = "paid" THEN transaction_items.subtotal ELSE 0 END), 0) as total_revenue')
+            ->groupBy('catalogs.id_produk', 'catalogs.nama', 'catalogs.stock', 'catalogs.harga')
             ->orderBy('total_sold', 'desc')
-            ->limit(10)
             ->get();
 
         // Category performance
@@ -100,7 +99,7 @@ class AIController extends Controller
             ->get();
 
         return [
-            'best_selling' => $bestSelling,
+            'all_fruits' => $allFruits,
             'category_performance' => $categoryPerformance,
             'low_stock' => $lowStock,
         ];
@@ -347,11 +346,16 @@ class AIController extends Controller
     }
 
     /**
-     * Get stock prediction and recommendations
+     * Get stock prediction and recommendations for ALL fruits
      */
     private function getStockPrediction()
     {
         try {
+            // Get ALL products from catalog
+            $allProducts = Catalog::select('id_produk', 'nama', 'stock', 'harga', 'keterangan')
+                ->get()
+                ->keyBy('id_produk');
+
             // Get sales velocity for each product (last 30 days)
             $salesVelocity = TransactionItem::select('catalog_id_produk', 'product_name')
                 ->selectRaw('SUM(quantity) as total_sold, AVG(quantity) as avg_per_transaction')
@@ -359,24 +363,20 @@ class AIController extends Controller
                 ->where('transactions.payment_status', 'paid')
                 ->where('transactions.transaction_date', '>=', Carbon::now()->subDays(30))
                 ->groupBy('catalog_id_produk', 'product_name')
-                ->get();
-
-            // Get current stock levels
-            $currentStock = Catalog::select('id_produk', 'nama', 'stock', 'harga', 'keterangan')
                 ->get()
-                ->keyBy('id_produk');
+                ->keyBy('catalog_id_produk');
 
             $predictions = [];
             $recommendations = [];
 
-            foreach ($salesVelocity as $item) {
-                $productId = $item->catalog_id_produk;
-                $product = $currentStock->get($productId);
+            // Process ALL products, not just those with sales
+            foreach ($allProducts as $productId => $product) {
+                $salesData = $salesVelocity->get($productId);
 
-                if (!$product) continue;
-
-                // Calculate daily sales rate
-                $dailySalesRate = $item->total_sold / 30;
+                // Calculate daily sales rate (0 if no sales)
+                $dailySalesRate = $salesData ? $salesData->total_sold / 30 : 0;
+                $totalSold30Days = $salesData ? $salesData->total_sold : 0;
+                $avgPerTransaction = $salesData ? $salesData->avg_per_transaction : 0;
 
                 // Predict days until stock out
                 $daysUntilStockOut = $product->stock > 0 && $dailySalesRate > 0
@@ -411,16 +411,14 @@ class AIController extends Controller
                     'urgency' => $urgency,
                     'category' => $product->keterangan,
                     'price' => $product->harga,
-                    'total_sold_30days' => $item->total_sold,
-                    'avg_per_transaction' => round($item->avg_per_transaction, 2)
+                    'total_sold_30days' => $totalSold30Days,
+                    'avg_per_transaction' => round($avgPerTransaction, 2)
                 ];
 
                 $predictions[] = $prediction;
 
-                // Add to recommendations if urgent
-                if ($urgency === 'critical' || $urgency === 'high') {
-                    $recommendations[] = $prediction;
-                }
+                // Add ALL products to recommendations (not just urgent ones)
+                $recommendations[] = $prediction;
             }
 
             // Sort predictions by urgency and days until stockout
@@ -448,7 +446,7 @@ class AIController extends Controller
 
             return [
                 'predictions' => $predictions,
-                'recommendations' => array_slice($recommendations, 0, 10), // Top 10 recommendations
+                'recommendations' => $recommendations, // ALL recommendations for all fruits
                 'summary' => [
                     'total_products_analyzed' => $totalProducts,
                     'critical_stock_products' => $criticalProducts,

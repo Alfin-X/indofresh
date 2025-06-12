@@ -283,30 +283,40 @@
                         </div>
                     </div>
 
-                    <!-- Recommendations -->
+                    <!-- Stock Recommendations for ALL Fruits -->
                     @if(count($stockPrediction['recommendations']) > 0)
                         <div class="mb-6">
-                            <h4 class="text-md font-medium mb-3 text-gray-900">🎯 Rekomendasi Prioritas</h4>
-                            <div class="space-y-3">
+                            <h4 class="text-md font-medium mb-3 text-gray-900">🍎 Rekomendasi Stok Semua Buah untuk Bulan Berikutnya</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 @foreach($stockPrediction['recommendations'] as $rec)
-                                    <div class="border rounded-lg p-4 {{ $rec['urgency'] === 'critical' ? 'border-red-300 bg-red-50' : 'border-yellow-300 bg-yellow-50' }}">
-                                        <div class="flex justify-between items-start">
-                                            <div class="flex-1">
-                                                <div class="flex items-center mb-2">
-                                                    <span class="font-medium text-gray-900">{{ $rec['product_name'] }}</span>
-                                                    <span class="ml-2 px-2 py-1 text-xs rounded-full {{ $rec['urgency'] === 'critical' ? 'bg-red-200 text-red-800' : 'bg-yellow-200 text-yellow-800' }}">
-                                                        {{ $rec['urgency'] === 'critical' ? 'KRITIS' : 'TINGGI' }}
-                                                    </span>
-                                                </div>
-                                                <div class="text-sm text-gray-600 space-y-1">
-                                                    <div>Stok saat ini: <span class="font-medium">{{ $rec['current_stock'] }} unit</span></div>
-                                                    <div>Penjualan harian: <span class="font-medium">{{ $rec['daily_sales_rate'] }} unit/hari</span></div>
-                                                    <div>Perkiraan habis dalam: <span class="font-medium {{ $rec['days_until_stockout'] <= 3 ? 'text-red-600' : 'text-yellow-600' }}">{{ $rec['days_until_stockout'] }} hari</span></div>
-                                                </div>
+                                    <div class="border rounded-lg p-4
+                                        {{ $rec['urgency'] === 'critical' ? 'border-red-300 bg-red-50' : '' }}
+                                        {{ $rec['urgency'] === 'high' ? 'border-yellow-300 bg-yellow-50' : '' }}
+                                        {{ $rec['urgency'] === 'medium' ? 'border-blue-300 bg-blue-50' : '' }}
+                                        {{ $rec['urgency'] === 'low' ? 'border-green-300 bg-green-50' : '' }}">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="font-medium text-gray-900">{{ $rec['product_name'] }}</span>
+                                            <span class="px-2 py-1 text-xs rounded-full
+                                                {{ $rec['urgency'] === 'critical' ? 'bg-red-200 text-red-800' : '' }}
+                                                {{ $rec['urgency'] === 'high' ? 'bg-yellow-200 text-yellow-800' : '' }}
+                                                {{ $rec['urgency'] === 'medium' ? 'bg-blue-200 text-blue-800' : '' }}
+                                                {{ $rec['urgency'] === 'low' ? 'bg-green-200 text-green-800' : '' }}">
+                                                {{ strtoupper($rec['urgency']) }}
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 space-y-1 mb-3">
+                                            <div>Stok saat ini: <span class="font-medium">{{ $rec['current_stock'] }} kg</span></div>
+                                            <div>Penjualan harian: <span class="font-medium">{{ $rec['daily_sales_rate'] }} kg/hari</span></div>
+                                            <div>Perkiraan habis dalam:
+                                                <span class="font-medium {{ $rec['days_until_stockout'] <= 7 ? 'text-red-600' : ($rec['days_until_stockout'] <= 14 ? 'text-yellow-600' : 'text-green-600') }}">
+                                                    {{ $rec['days_until_stockout'] > 999 ? '∞' : number_format($rec['days_until_stockout'], 1) }} hari
+                                                </span>
                                             </div>
-                                            <div class="text-right">
-                                                <div class="text-lg font-bold text-green-600">{{ $rec['recommended_reorder'] }} unit</div>
-                                                <div class="text-sm text-gray-500">Rekomendasi order</div>
+                                        </div>
+                                        <div class="border-t pt-3">
+                                            <div class="text-center">
+                                                <div class="text-lg font-bold text-green-600">{{ $rec['recommended_reorder'] }} kg</div>
+                                                <div class="text-sm text-gray-500">Rekomendasi order bulan depan</div>
                                                 <div class="text-sm text-gray-600">≈ Rp {{ number_format($rec['recommended_reorder'] * $rec['price'], 0, ',', '.') }}</div>
                                             </div>
                                         </div>
@@ -392,16 +402,16 @@
                 </div>
             </div>
 
-            <!-- Best Selling Products -->
+            <!-- All Fruits Performance -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium mb-4">Produk Terlaris</h3>
+                    <h3 class="text-lg font-medium mb-4">📊 Performa Semua Buah</h3>
                     <div class="space-y-3">
-                        @foreach($productAnalytics['best_selling']->take(5) as $product)
+                        @foreach($productAnalytics['all_fruits'] as $product)
                             <div class="flex justify-between items-center">
                                 <div>
                                     <div class="font-medium">{{ $product->product_name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $product->total_sold }} kg terjual</div>
+                                    <div class="text-sm text-gray-500">{{ $product->total_sold }} kg terjual | Stok: {{ $product->stock }} kg</div>
                                 </div>
                                 <div class="text-right">
                                     <div class="font-medium">Rp {{ number_format($product->total_revenue, 0, ',', '.') }}</div>
